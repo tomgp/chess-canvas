@@ -7,8 +7,10 @@
 	<script type="text/javascript" src="js/PGNSplitter.js"></script>
 	<script>
 
-		var pgn_base = new PGNSplitter('/pgn/Carlsen.pgn');
-
+		var pgn_base = new PGNSplitter('/pgn/Carlsen.pgn',"Carlsen");
+		pgn_base.loadPGN('/pgn/Anand.pgn', "Anand");
+		pgn_base.loadPGN('/pgn/Nakamura.pgn', "Nakamura");
+		
 		var pgn = '[Event "Cannes sim"]\n[Site "Cannes"]\n[Date "1988.??.??"]\n[Round "10"]\n[White "Kasparov, Gary"]\n[Black "Savereide, Diane"]\n[Result "1-0"]\n[WhiteElo "2735"]\n[BlackElo "2280"]\n[ECO "A30"]\n\n1.c4 Nf6 2.Nc3 c5 3.Nf3 e6 4.g3 b6 5.Bg2 Bb7 6.O-O Be7 7.b3 O-O 8.Bb2 d6 9.e3 Nbd7 10.d4 cxd4 11.Nxd4 Qc8 12.Rc1 Bxg2 13.Kxg2 Qb7+ 14.Qf3 Qxf3+ 15.Kxf3 Rfc8 16.Rfd1 a6 17.Ke2 Nc5 18.f3 g6 19.g4 e5 20.Nc2 b5 21.cxb5 axb5 22.Nb4 e4 23.Nxb5 Rcb8 24.a4 Nxb3 25.Nc6 Nxc1+ 26.Rxc1 Kf8 27.Nxb8 Rxb8 28.Bxf6 Bxf6 29.fxe4 Be5 30.h3 Kg7 31.Kd3 h5 32.gxh5 g5 33.Rc7 Ra8 34.Ra7 Rh8 35.a5 Rxh5 36.a6 Rxh3  1-0';
 		
 		var chess = new Chess();
