@@ -1,6 +1,6 @@
 //decompressed game
 (function(window) {
-	function ChessGame(pgn) {
+	function pgnSplitter(pgn_file) {
 		this.initialize(pgn);
 	}
 	var p = ChessGame.prototype;
