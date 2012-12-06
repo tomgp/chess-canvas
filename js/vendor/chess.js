@@ -1437,9 +1437,9 @@ var Chess = function(fen) {
       
       /* parse PGN header */
       var headers = parse_pgn_header(header_string, options);
-      console.log(headers);
       
-      game_meta = headers;
+      
+      game_meta = headers; //TP, added this game_metta stuff to easily get at the header data in native JS object form
 
       for (var key in headers) {
         set_header([key, headers[key]]);
