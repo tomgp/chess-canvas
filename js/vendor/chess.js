@@ -25,10 +25,8 @@
  *
  *----------------------------------------------------------------------------*/
 
- //from https://github.com/jhlywa/chess.js
-
 var Chess = function(fen) {
-  var game_meta = "n\/a";
+
   var BLACK = 'b';
   var WHITE = 'w';
 
@@ -1387,6 +1385,7 @@ var Chess = function(fen) {
       }
 
       function get_move_obj(move) {
+        console.log(move);
         return move_from_san(trim(move));
       }
 
@@ -1414,6 +1413,7 @@ var Chess = function(fen) {
             header_obj[key] = value;
           }
         }
+     
         return header_obj;
       }
 
@@ -1436,9 +1436,6 @@ var Chess = function(fen) {
       
       /* parse PGN header */
       var headers = parse_pgn_header(header_string, options);
-      
-      game_meta = headers; //TP, added this game_metta stuff to easily get at the header data in native JS object form
-
       for (var key in headers) {
         set_header([key, headers[key]]);
       }
@@ -1467,6 +1464,7 @@ var Chess = function(fen) {
          * latest valid position)
          */
         if (move == null) {
+          console.log("null move (a)");
           return false;
         } else {
           make_move(move);
@@ -1483,6 +1481,7 @@ var Chess = function(fen) {
       else {
         move = get_move_obj(move);
         if (move == null) {
+          console.log("null move (b)");
           return false;
         } else {
           make_move(move);
@@ -1550,10 +1549,6 @@ var Chess = function(fen) {
       make_move(move_obj);
 
       return pretty_move;
-    },
-
-    game_meta: function(){
-      return game_meta;
     },
 
     undo: function() {

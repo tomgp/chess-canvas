@@ -3,6 +3,15 @@
 		font-family: sans-serif;
 	}
 
+	a{
+		color: #000;
+	}
+
+	a:hover{
+		background-color: #FFF;
+		color: #F00;
+	}
+
 	svg{
 		vertical-align: top;
 		padding: 10px;
@@ -45,7 +54,7 @@
 	}
 
 	.tooltip{
-		padding: 3px;
+		padding: 10px;
 		border-width: 1px;
 		border-style: solid;
 		border-color: 333;
