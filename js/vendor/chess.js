@@ -1385,7 +1385,6 @@ var Chess = function(fen) {
       }
 
       function get_move_obj(move) {
-        console.log(move);
         return move_from_san(trim(move));
       }
 

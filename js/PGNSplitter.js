@@ -24,7 +24,7 @@
 		var that = this;
 		client.onreadystatechange = function(){
 			if(client.readyState == 4){
-				that.games[identifier] = p.createGameObject(client.responseText.replace(/\[Event/g, "!NEW GAME![Event").split('!NEW GAME!'));
+				that.games[identifier] = client.responseText.replace(/\[Event/g, "!NEW GAME![Event").split('!NEW GAME!');
 				that.split.dispatch('complete', identifier);
 		  	}
 		}

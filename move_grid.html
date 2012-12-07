@@ -32,12 +32,11 @@
 		function onSplit(type, id){
 			//play each game through recording the moves or player made at each stage and which pieces they used
 			var games = pgn_base.games[id];
-			var g = new Chess();
-			var p = games[10];
-			console.log(p);
-			var result = g.load_pgn(games[10].split("\n").join("\\n"));
-			console.log(result);
-			console.log(g.ascii());
+			for(var i=1; i < games.length; i++){
+				var g = new Chess();
+				g.load_pgn(games[i]);
+				console.log(g.ascii());
+			}
 		}
 
 	</script>
