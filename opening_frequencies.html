@@ -10,23 +10,36 @@
 		vertical-align: top;
 		padding: 10px;
 	}
+
 	.black{
 		stroke:#FFF;
 		stroke-width:0;
 		fill:#000;
 		shape-rendering: crispEdges;
 	}
+
 	.white{
 		stroke:#000;
 		stroke-width:0;
 		fill:#FFF;	
 		shape-rendering: crispEdges;
 	}
+
 	.both{
 		stroke:#fff;
 		stroke-width:1;
 		fill:#999;	
 		shape-rendering: crispEdges;
+	}
+
+	.highlight{
+		fill:#f00;
+	}
+
+	.player_name{
+		display: inline-block;
+		text-align: right;
+		font-size: 0.7rem;
 	}
 
 	.tooltip{
@@ -38,8 +51,6 @@
 		z-index: 100;
 		visibility: hidden;
 		background-color: #FFF;
-		moz-box-shadow: 5px 5px rgba(0,0,0,0.7);
-		-webkit-box-shadow: 5px 5px rgba(0,0,0,0.7);
 	}
 
 	</style>
@@ -96,6 +107,7 @@
 					.attr("x", function(d) { return x(d.white); })
 					.attr("width", function(d) { return x(d.black); })
 					.attr("height", bar_height)
+					.attr("eco", function(d){ return d.eco; })
 					.attr("class", "black")
 						.on("mouseover", function(d){
 							d3.select(".tooltip").style("visibility","visible");
@@ -103,9 +115,13 @@
 						.on("mousemove", function(d){
 							d3.select(".tooltip").style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px")
 								.html(getTipText(d));
+							d3.selectAll('rect[eco="'+d.eco+'"]')
+								.classed("highlight", true);
 						})
 						.on("mouseout", function(d){
 							d3.select(".tooltip").style("visibility", "hidden");
+							d3.selectAll('rect[eco="'+d.eco+'"]')
+								.classed("highlight", false);
 						});
 
 			chart.selectAll("#"+id)
@@ -114,20 +130,27 @@
 					.attr("y", function(d, i) { return i * bar_height; })
 					.attr("width", function(d) { return x(d.white); })
 					.attr("height", bar_height)
+					.attr("eco", function(d){ return d.eco; })
 					.attr("class", "white")
 						.on("mouseover", function(d){
 							d3.select(".tooltip").style("visibility","visible");
 						})
 						.on("mousemove", function(d){
-							d3.select(".tooltip").style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px")
+							d3.select(".tooltip").style("top", (event.pageY+10)+"px").style("left",(event.pageX+10)+"px")
 								.html(getTipText(d));
+							d3.selectAll('rect[eco="'+d.eco+'"]')
+								.classed("highlight", true);
 						})
 						.on("mouseout", function(d){
 							d3.select(".tooltip").style("visibility", "hidden");
+							d3.selectAll('rect[eco="'+d.eco+'"]')
+								.classed("highlight", false);
 						});
-
+			d3.select('body').insert("div", "#"+id)
+				.attr("class","player_name")
+				.html("<b>" + id + "</b>" + "<br>" + data.length + " openings" + "<br>" + pgn_base.games[id].length + " games");
 			function getTipText(data){
-				return "Opening: <b>" + data.eco + "</b><br>white: <b>" + data.white + "</b><br>black: <b>" + data.black + "</b>";
+				return "opening: <b>" + data.eco + "</b><br>white: <b>" + data.white + "</b> times<br>black: <b>" + data.black + "</b> times";
 			}
 		}
 
