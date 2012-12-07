@@ -4,6 +4,7 @@
 	<script type="text/javascript" src="js/vendor/signals.min.js"></script>
 	<script type="text/javascript" src="js/vendor/chess.js"></script>
 	<script type="text/javascript" src="js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="js/vendor/d3.v2.min.js"></script>
 	<script type="text/javascript" src="js/ChessOpenings.js"></script>
 	<script type="text/javascript" src="js/PGNSplitter.js"></script>
 	<script type="text/javascript" src="js/GameMetaData.js"></script>
@@ -27,45 +28,43 @@
 		function onSplit(type, id){
 			console.log("SPLIT: " + id);
 			var frequencies = buildOpeningFrequencies(pgn_base.games[id], id);
-			console.log(frequencies);
+			drawFrequencyChart(frequencies, id);
 		}
 
-		
+		function drawFrequencyChart(f, id){
+			var chart = d3.select("body").append("div")
+				.attr("class", "frequency_chart");
+		}
+
 		function buildOpeningFrequencies(pgn_list, player_string){ // a list of games, the name of the player to build for
-			var white_frequencies = {};
-			var black_frequencies = {};
-			var total_frequencies = {};
+			var frequencies = {};
 
 			for (var i = 0; i<pgn_list.length; i++){
 				if(pgn_list[i] != ""){
 					var gameMeta = new GameMetaData(pgn_list[i]).getData();
-					if(gameMeta.ECO == undefined){
-						console.log(gameMeta);
+					if(!frequencies[gameMeta.ECO]){
+							frequencies[gameMeta.ECO] = {black:0, white:0, total:0};
 					}
 					if(gameMeta.White.indexOf(player_string) !== -1){
-						if(!white_frequencies[gameMeta.ECO]){
-							white_frequencies[gameMeta.ECO] = 0;
-						}
-						white_frequencies[gameMeta.ECO] ++;
+						frequencies[gameMeta.ECO].white ++;	
 					}else if(gameMeta.Black.indexOf(player_string) !== -1){
-						if(!black_frequencies[gameMeta.ECO]){
-							black_frequencies[gameMeta.ECO] = 0;
-						}
-						black_frequencies[gameMeta.ECO] ++;
+						frequencies[gameMeta.ECO].black ++;	
 					}
-					if(!total_frequencies[gameMeta.ECO]){
-						total_frequencies[gameMeta.ECO] = 0;
-					}
-					total_frequencies[gameMeta.ECO] ++;
+					frequencies[gameMeta.ECO].total ++;
 				}
 			}
 
-			return {
-					white:white_frequencies,
-					black:black_frequencies,
-					total:total_frequencies
-				};
+			function convertObjectToArray(obj){
+				var a = [];
+				for(var key in obj){
+					a.push({eco:key, black:obj[key].black, white:obj[key].white, total:obj[key].total})
+				}
+				return a;
+			}
+			return convertObjectToArray(frequencies);
 		}
+
+
 
 		//load a game
 		//chess.load_pgn(test_pgn);		
