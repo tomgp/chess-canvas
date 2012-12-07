@@ -6,8 +6,10 @@
 
 	var p = PGNSplitter.prototype;
 	p.games = {};
+	p.split;
 		// constructor:
 	p.initialize = function(pgn_file, id) {
+		p.split = new signals.Signal()
 		if(pgn_file){
 			if(!id){
 				id = 'anon';
@@ -23,6 +25,7 @@
 		client.onreadystatechange = function(){
 			if(client.readyState == 4){
 				that.games[identifier] = p.createGameObject(client.responseText.replace(/\[Event/g, "!NEW GAME![Event").split('!NEW GAME!'));
+				that.split.dispatch('complete', identifier);
 		  	}
 		}
 		client.send();
