@@ -1,0 +1,56 @@
+	body{
+		background-color: #ccc;
+		font-family: sans-serif;
+	}
+
+	svg{
+		vertical-align: top;
+		padding: 10px;
+	}
+
+	.black{
+		stroke:#FFF;
+		stroke-width:0;
+		fill:#000;
+		shape-rendering: crispEdges;
+	}
+
+	.description{
+		max-width: 500px;
+		padding: 20px;
+	}
+
+	.white{
+		stroke:#000;
+		stroke-width:0;
+		fill:#FFF;	
+		shape-rendering: crispEdges;
+	}
+
+	.both{
+		stroke:#fff;
+		stroke-width:1;
+		fill:#999;	
+		shape-rendering: crispEdges;
+	}
+
+	.highlight{
+		fill:#f00;
+	}
+
+	.player_name{
+		display: inline-block;
+		text-align: right;
+		font-size: 0.7rem;
+	}
+
+	.tooltip{
+		padding: 3px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: 333;
+		position: absolute;
+		z-index: 100;
+		visibility: hidden;
+		background-color: #FFF;
+	}

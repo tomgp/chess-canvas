@@ -1,60 +1,8 @@
+<!DOCTYPE html>
 <html>
 <head>
-	<style>
-	body{
-		background-color: #ccc;
-		font-family: sans-serif;
-	}
-
-	svg{
-		vertical-align: top;
-		padding: 10px;
-	}
-
-	.black{
-		stroke:#FFF;
-		stroke-width:0;
-		fill:#000;
-		shape-rendering: crispEdges;
-	}
-
-	.white{
-		stroke:#000;
-		stroke-width:0;
-		fill:#FFF;	
-		shape-rendering: crispEdges;
-	}
-
-	.both{
-		stroke:#fff;
-		stroke-width:1;
-		fill:#999;	
-		shape-rendering: crispEdges;
-	}
-
-	.highlight{
-		fill:#f00;
-	}
-
-	.player_name{
-		display: inline-block;
-		text-align: right;
-		font-size: 0.7rem;
-	}
-
-	.tooltip{
-		padding: 3px;
-		border-width: 1px;
-		border-style: solid;
-		border-color: 333;
-		position: absolute;
-		z-index: 100;
-		visibility: hidden;
-		background-color: #FFF;
-	}
-
-	</style>
 	<title>Opening frequencies</title>
+	<link rel="stylesheet" type="text/css" href="css/chess_style.css">
 	<script type="text/javascript" src="js/vendor/signals.min.js"></script>
 	<script type="text/javascript" src="js/vendor/chess.js"></script>
 	<script type="text/javascript" src="js/vendor/easeljs-0.5.0.min.js"></script>
@@ -63,7 +11,7 @@
 	<script type="text/javascript" src="js/PGNSplitter.js"></script>
 	<script type="text/javascript" src="js/GameMetaData.js"></script>
 	<script type="text/javascript" src="js/ChessPlayback.js"></script>
-	<script>
+	<script type="text/javascript">
 
 		var sortby = "white";
 
@@ -191,6 +139,9 @@
 
 <body>
 <h1>Opening frequencies</h1>
+<div class="description">
+	frequency distribution for a selections of players. The charts show the number of times each player used particular openings split into black and white. Moving your mouse over the charts will highlight the same opening on the different charts. 
+</div>
 <div>
 	<div class='tooltip'>
 		tooltip
