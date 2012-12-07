@@ -29,24 +29,10 @@
 	}
 
 	p.createGameObject = function(pgn){
-		return{
-/*			
-			nalimov_point: // when 6 or fewer pieces are on the board nalimov tables will tell us who should win under perfect play, what turn is this reached on 0 = never
-			event:
-			site:
-			date:
-			white_player:{
-				name:
-				ELO:
-			}
-			black_player:{
-				name:
-				ELO:
-			}
-			ECO: */
-			PGN:pgn
-		}
+		return pgn;
 	} 
+
+	//TODO: dispatch event when ready
 
 	window.PGNSplitter = PGNSplitter;
 }(window));
