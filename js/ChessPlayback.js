@@ -10,6 +10,7 @@
 	p.history = [];
 	p.nalimovPoint = 0;
 	p.nalimovFEN = "";
+	p.last_move = false;
 
 	p.initialize = function(chess_object) {
 		this.game = chess_object;
@@ -19,7 +20,6 @@
 		for(var i = 0; i < this.history.length; i++){
 			this.getNextBoardState();
 			var pieces = this.numberOfPieces();
-			console.log(pieces);
 			if(pieces <= 6){
 				this.nalimovPoint = this.move;
 				this.nalimovFEN = this.game.fen();
@@ -35,12 +35,16 @@
 		//apply the next move
 		this.game.move(this.history[this.move]);
 		this.move ++;
+		if(this.move == this.history.length){
+			this.last_move = true;
+		}
 		return this.game.ascii();
 	}
 
 	p.getPreviousBoardState = function(){
 		this.move --;
 		this.game.undo();
+		this.last_move = false;
 		return this.game.ascii();
 	}
 

@@ -11,40 +11,84 @@
 	<script type="text/javascript" src="js/PGNSplitter.js"></script>
 	<script type="text/javascript" src="js/GameMetaData.js"></script>
 	<script type="text/javascript" src="js/ChessPlayback.js"></script>
+	<script type="text/javascript" src="generated_data/Anand_moves.json"></script>
 	<script type="text/javascript">
 
-		var test_pgn = '[Event "Cannes sim"]\n[Site "Cannes"]\n[Date "1988.??.??"]\n[Round "10"]\n[White "Kasparov, Gary"]\n[Black "Savereide, Diane"]\n[Result "1-0"]\n[WhiteElo "2735"]\n[BlackElo "2280"]\n[ECO "A30"]\n\n1.c4 Nf6 2.Nc3 c5 3.Nf3 e6 4.g3 b6 5.Bg2 Bb7 6.O-O Be7 7.b3 O-O 8.Bb2 d6 9.e3 Nbd7 10.d4 cxd4 11.Nxd4 Qc8 12.Rc1 Bxg2 13.Kxg2 Qb7+ 14.Qf3 Qxf3+ 15.Kxf3 Rfc8 16.Rfd1 a6 17.Ke2 Nc5 18.f3 g6 19.g4 e5 20.Nc2 b5 21.cxb5 axb5 22.Nb4 e4 23.Nxb5 Rcb8 24.a4 Nxb3 25.Nc6 Nxc1+ 26.Rxc1 Kf8 27.Nxb8 Rxb8 28.Bxf6 Bxf6 29.fxe4 Be5 30.h3 Kg7 31.Kd3 h5 32.gxh5 g5 33.Rc7 Ra8 34.Ra7 Rh8 35.a5 Rxh5 36.a6 Rxh3  1-0';
+		
+		
 
-		var test2_pgn = '[Event "Thessaloniki ol (Men)"]\n[Site "Thessaloniki"]\n[Date "1984.??.??"]\n[Round "7"]\n[White "Ostermeyer, Peter"]\n[Black "Anand, Viswanathan"]\n[Result "0-1"]\n[WhiteElo "2470"]\n[BlackElo "2345"]\n[ECO "A15"]\n\n1.Nf3 Nf6 2.c4 g6 3.b3 Bg7 4.Bb2 O-O 5.g3 d6 6.Bg2 e5 7.O-O c6 8.e3 h6 9.d4 e4\n10.Nfd2 d5 11.Nc3 Be6 12.Rc1 Nbd7 13.cxd5 cxd5 14.Qe2 a6 15.Na4 b6 16.Ba3 Re8\n17.Rc2 Bg4 18.Qe1 Rc8 19.Rxc8 Qxc8 20.h3 b5 21.hxg4 bxa4 22.Qd1 Qc3 23.Nb1 Qc6\n24.Re1 Rb8 25.Bf1 axb3 26.axb3 Bf8 27.Bxf8 Nxf8 28.Be2 Rc8 29.Kg2 a5 30.Qd2 Qb6\n31.Qa2 Ne6 32.Nd2 Ng5 33.Ra1 Kg7 34.Qb2 Qe6 35.Rxa5 Nxg4 36.Rc5 Qf5 37.f3 exf3+\n38.Bxf3 Nxe3+ 39.Kg1 Nxf3+ 40.Nxf3 Qxf3 41.Rxc8 Qf1+  0-1';
+	function go(){
+
+		var stage = new createjs.Stage(move_grid);
+		var row_scale = 0.3;
+
+		var total_games = 0;
+		for(var t in anand_moves[0]){
+			total_games += anand_moves[0][t];
+		}
+
+		var row_height = 5;
+		var row_width = total_games * row_scale;
+
+		console.log("GAMES : " + total_games);
+		var yPos = 0;
+		for(var i = 0; i<anand_moves.length;i++){
+			
+
+			//each row is a turn
+			var row = new createjs.Container();
+			//number of games that were played until atleast that turn determines the width of the bar
+			var games_this_turn = 0;
+			for(var t in anand_moves[i]){
+				games_this_turn += anand_moves[i][t];
+			}
+			var row_width = games_this_turn * row_scale;
+			console.log(i +" > "+games_this_turn);
+			var total_moves = Object.keys(anand_moves[i]).length;
+			var block_width = row_width / total_moves;
+			var xPos = (total_games * row_scale)/2 - (row_width/2);
+			for(var move in anand_moves[i]){
+				//work out colour value
+				anand_moves[i][move]
+				var block = new createjs.Shape();
+				block.snapToPixel=true;
+				block.graphics.beginFill(createjs.Graphics.getRGB(255,0,0));
+				//block.graphics.beginStroke(createjs.Graphics.getRGB(0,0,0));
+				block.graphics.drawRect(xPos,0, block_width, row_height);
+				row.addChild(block);
+				xPos += block_width;
+			}
+			row.y = yPos;
+			stage.addChild(row);
+			
+			//subdivided into number of different moves made that turn
+			//each move block is coloured depending on how likely it is, value from 0-255 I guess
+			yPos+=row_height;
+		}
+		stage.update();
+
+		document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("move_grid").toDataURL() + '">image data</a>';
+	}
+
+////
 
 		//for a given player
 		//go through each of their games and record details of each one. both the exact move and piece used
 		//plot each played move down the page colour dependent on the proportion of times that move has been played (or that piece has been used?)
 		//highlight when nalimov points have been reached
 
-		var pgn_base = new PGNSplitter('/pgn/Anand.pgn',"Anand");
-		pgn_base.split.add(onSplit);
-
-		var c = new Chess();
-		c.load_pgn(test2_pgn);
-		console.log(c.ascii());
-
-		function onSplit(type, id){
-			//play each game through recording the moves or player made at each stage and which pieces they used
-			var games = pgn_base.games[id];
-			for(var i=1; i < games.length; i++){
-				var g = new Chess();
-				g.load_pgn(games[i]);
-				console.log(g.ascii());
-			}
-		}
-
 	</script>
 </head>
-<body>
+<body onLoad="go()">
 <h1>Move grid</h1>
 <div class="description">
 
 </div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="move_grid" width="3000" height="3000"></canvas>
+</div>
+
 </body>
 </html>
