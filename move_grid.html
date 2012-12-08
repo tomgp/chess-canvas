@@ -11,15 +11,17 @@
 	<script type="text/javascript" src="js/PGNSplitter.js"></script>
 	<script type="text/javascript" src="js/GameMetaData.js"></script>
 	<script type="text/javascript" src="js/ChessPlayback.js"></script>
+	<!--<script type="text/javascript" src="js/colour.js"></script>-->
 	<script type="text/javascript" src="generated_data/Anand_moves.json"></script>
 	<script type="text/javascript">
 
-		
 		
 
 	function go(){
 
 		var stage = new createjs.Stage(move_grid);
+		var background = new createjs.Shape();
+
 		var row_scale = 0.3;
 
 		var total_games = 0;
@@ -31,6 +33,11 @@
 		var row_width = total_games * row_scale;
 
 		console.log("GAMES : " + total_games);
+
+		background.graphics.beginFill('#000000');
+		background.graphics.drawRect(0,0,row_width,anand_moves.length*row_height);
+		stage.addChild(background);
+
 		var yPos = 0;
 		for(var i = 0; i<anand_moves.length;i++){
 			
@@ -39,21 +46,24 @@
 			var row = new createjs.Container();
 			//number of games that were played until atleast that turn determines the width of the bar
 			var games_this_turn = 0;
+			var max_this_turn = 0;
 			for(var t in anand_moves[i]){
 				games_this_turn += anand_moves[i][t];
+				max_this_turn = Math.max(max_this_turn, anand_moves[i][t]);
 			}
 			var row_width = games_this_turn * row_scale;
-			console.log(i +" > "+games_this_turn);
 			var total_moves = Object.keys(anand_moves[i]).length;
 			var block_width = row_width / total_moves;
 			var xPos = (total_games * row_scale)/2 - (row_width/2);
+			console.log(anand_moves[i]);
 			for(var move in anand_moves[i]){
 				//work out colour value
-				anand_moves[i][move]
+				var red = Math.floor((255 / max_this_turn) * anand_moves[i][move]);
+				if(i==0){
+					console.log(red);
+				}
 				var block = new createjs.Shape();
-				block.snapToPixel=true;
-				block.graphics.beginFill(createjs.Graphics.getRGB(255,0,0));
-				//block.graphics.beginStroke(createjs.Graphics.getRGB(0,0,0));
+				block.graphics.beginFill(createjs.Graphics.getRGB(red,0,0));
 				block.graphics.drawRect(xPos,0, block_width, row_height);
 				row.addChild(block);
 				xPos += block_width;
