@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Move grid</title>
+	<title>Unordered move grid</title>
 	<link rel="stylesheet" type="text/css" href="css/chess_style.css">
 	<script type="text/javascript" src="js/vendor/signals.min.js"></script>
 	<script type="text/javascript" src="js/vendor/chess.js"></script>
@@ -88,16 +88,43 @@
 		//highlight when nalimov points have been reached
 
 	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+		#move10{
+			top: 50px;
+		}
+		#move20{
+			top: 100px;
+		}
+		#move50{
+			top:250px;
+		}
+		#move100{
+			top:500px;
+		}
+	</style>
 </head>
 <body onLoad="go()">
-<h1>Move grid</h1>
+<h1>Unordered move grid</h1>
 <div class="description">
-
+ Every move Anand has made over 2000+ games. Each row is a turn, the coloured blocks represent moves that have been made in that turn, the more intense the colour the more times that move has been made. The move blocks get smaller as the move number increases, as there are more moves that have been made.
 </div>
 <div id="extra">
 </div>
 <div class="visualisation">
 	<canvas id="move_grid" width="3000" height="3000"></canvas>
+
+	<div class="label" id="move10">10</div>
+	<div class="label" id="move20">20</div>
+	<div class="label" id="move50">50</div>
+	<div class="label" id="move100">100</div>
 </div>
 
 </body>

@@ -63,3 +63,6 @@
 		visibility: hidden;
 		background-color: #FFF;
 	}
+	.visualisation{
+		position: relative;
+	}
