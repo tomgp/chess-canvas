@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Unordered move grid</title>
+	<link rel="stylesheet" type="text/css" href="css/chess_style.css">
+	<script type="text/javascript" src="js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="js/vendor/chess.js"></script>
+	<script type="text/javascript" src="js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="js/GameMetaData.js"></script>
+	<script type="text/javascript" src="js/ChessPlayback.js"></script>
+	<!--<script type="text/javascript" src="js/colour.js"></script>-->
+	<script type="text/javascript" src="generated_data/Anand_moves.json"></script>
+	<script type="text/javascript">
+
+	var eg_game = '1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be2 e5 7.Nb3 Be7 8.O-O O-O/n9.Kh1 b5 10.a4 Bb7 11.Nd5 bxa4 12.Rxa4 Bc6 13.Ra3 Nxe4 14.Na5 Nf6 15.Nxc6 Nxc6/n16.Bc4 Nd4 17.Rh3 g6 18.Qd2 Nf5 19.Nxf6+ Bxf6 20.Bd5 h5 21.Bxa8 Qxa8 22.Ra3 Rc8/n23.c3 Qb7 24.Qd3 Rc6 25.Rd1 d5 26.Ra5 d4 27.cxd4 exd4 28.b4 Nh4 29.f3 Qxb4/n30.Rxa6 Rxa6 31.Qxa6 Bg7 32.Qd3 Nf5 33.Bf4 Qb2 34.g3 Kh7 35.Rd2 Qb7 36.Qe4 Qb5/n37.Qd3 Qb7 38.Qe4 Qb5 39.Kg1 Qa5 40.Qd3 Ne7 41.Rd1 Nd5 42.Bd2 Qa7 43.Re1 Qd7/n44.Kg2 Qa7 45.Kg1 Qa2 46.Re2 Qa1+ 47.Re1 Qa4 48.Rc1 Nc3 49.g4 Qa5 50.Re1 Qc5/n51.h3 Bf6 52.f4 h4 53.Qf3 Qb5 54.g5 Bg7 55.Re7 Qb1+ 56.Qf1 Qf5 57.Qe1 Qxh3/n58.Rxf7 Qg4+ 59.Kh2 h3 60.Qf1 Ne4 61.Be1 d3 62.Qxh3+ Qxh3+ 63.Kxh3 d2  1/2-1/2';
+	var opening = ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "a6", "Be2", "e5"];
+	//B92	Sicilian opening, Opocensky Variation
+
+	function go(){
+
+		var stage = new createjs.Stage(move_grid);
+		var background = new createjs.Shape();
+
+		var row_scale = 0.3;
+
+		var total_games = 0;
+		for(var t in Anand_moves[0]){
+			total_games += Anand_moves[0][t];
+		}
+
+		var row_height = 5;
+		var row_width = total_games * row_scale;
+
+		console.log("GAMES : " + total_games);
+
+		background.graphics.beginFill('#000000');
+		background.graphics.drawRect(0,0,row_width,Anand_moves.length*row_height);
+		stage.addChild(background);
+
+		var ch = new Chess();
+		ch.load_pgn(eg_game);
+		console.log(ch.ascii());
+		var yPos = 0;
+		for(var i = 0; i<Anand_moves.length;i++){
+			
+
+			//each row is a turn
+			var row = new createjs.Container();
+			//number of games that were played until atleast that turn determines the width of the bar
+			var games_this_turn = 0;
+			var max_this_turn = 0;
+			for(var t in Anand_moves[i]){
+				games_this_turn += Anand_moves[i][t];
+				max_this_turn = Math.max(max_this_turn, Anand_moves[i][t]);
+			}
+			var row_width = games_this_turn * row_scale;
+			var total_moves = Object.keys(Anand_moves[i]).length;
+			var block_width = row_width / total_moves;
+			var xPos = (total_games * row_scale)/2 - (row_width/2);
+//			console.log(Anand_moves[i]);
+
+			for(var move in Anand_moves[i]){
+				//work out colour value
+				var red = Math.floor((255 / max_this_turn) * Anand_moves[i][move]);
+				if(i==0){
+					console.log(red);
+				}
+				var block = new createjs.Shape();
+				block.graphics.beginFill(createjs.Graphics.getRGB(red,red,red));
+				block.graphics.drawRect(xPos,0, block_width, row_height);
+				row.addChild(block);
+				xPos += block_width;
+			}
+			row.y = yPos;
+			stage.addChild(row);
+			
+			//subdivided into number of different moves made that turn
+			//each move block is coloured depending on how likely it is, value from 0-255 I guess
+			yPos+=row_height;
+		}
+		stage.update();
+
+		document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("move_grid").toDataURL() + '">image data</a>';
+	}
+
+////
+
+		//for a given player
+		//go through each of their games and record details of each one. both the exact move and piece used
+		//plot each played move down the page colour dependent on the proportion of times that move has been played (or that piece has been used?)
+		//highlight when nalimov points have been reached
+
+	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+		#move10{
+			top: 50px;
+		}
+		#move20{
+			top: 100px;
+		}
+		#move50{
+			top:250px;
+		}
+		#move100{
+			top:500px;
+		}
+	</style>
+</head>
+<body onLoad="go()">
+<h1>Unordered move grid</h1>
+<div class="description">
+ Every move Anand has made over 2000+ games. Each row is a turn, the coloured blocks represent moves that have been made in that turn, the more intense the colour the more times that move has been made. The move blocks get smaller as the move number increases, as there are more moves that have been made.
+ v2. moves ordered. the path of a single game plotted
+</div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="move_grid" width="3000" height="3000"></canvas>
+
+	<div class="label" id="move10">10</div>
+	<div class="label" id="move20">20</div>
+	<div class="label" id="move50">50</div>
+	<div class="label" id="move100">100</div>
+</div>
+
+</body>
+</html>
