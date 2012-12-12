@@ -29,15 +29,15 @@ var players = [
 for (var p = 0; p<players.length; p++){
 	util.puts(" >>> " + players[p].name)
 	players[p].frequencies = runGames(players[p]);
-	fen_frequencies = JSON.stringify(players[p].frequencies.fens);
+	fen_frequencies = JSON.stringify(players[p].frequencies.fens_by_turn);
 	move_frequencies = JSON.stringify(players[p].frequencies.moves);
 
 	//maybe trim FEN data, remove anything configuration that occurs only once
 	var out_file = fs.openSync('generated_data/' + players[p].name + '_fen.json', 'w');
-		fs.writeSync(out_file, fen_frequencies);
+		fs.writeSync(out_file, "var " + players[p].name + '_fen = ' + fen_frequencies);
 		fs.closeSync(out_file);
 	out_file = fs.openSync('generated_data/' + players[p].name + '_moves.json', 'w');
-		fs.writeSync(out_file, players[p].name + '_moves =' + move_frequencies);
+		fs.writeSync(out_file, "var " + players[p].name + '_moves = ' + move_frequencies);
 		fs.closeSync(out_file);
 }
 
@@ -47,6 +47,7 @@ function runGames(player){
 	var total_games = games_list.length; 
 	var moves = []
 	var fens = {};
+	var fens_by_turn = [];
 	for (var i=0; i<games_list.length; i++ ){
 		var meta_data = new GameMetaData(games_list[i]);
 
@@ -81,7 +82,8 @@ function runGames(player){
 			util.puts("got history");
 			c.reset();
 			util.puts("reset");
-			for(var m=0; m<game_moves.length; m++){
+			var move_limit = Math.min(game_moves.length, 20); 
+			for(var m=0; m < move_limit; m++){
 				if(!moves[m]){
 					moves[m] = {};
 				}
@@ -91,9 +93,17 @@ function runGames(player){
 				moves[m][game_moves[m]] ++;
 				c.move(game_moves[m]);
 				var fen = c.fen();
+				if(!fens_by_turn[m]){
+					fens_by_turn[m] = {};
+				}
 				if(!fens[fen]){
 					fens[fen] = 0;
+					fens_by_turn[m][fen] = 0;
 				}
+				if(!fens_by_turn[m][fen]){
+					fens_by_turn[m][fen] = 0;
+				}
+				fens_by_turn[m][fen] ++
 				fens[fen] ++;
 			}
 		}
@@ -121,30 +131,7 @@ function runGames(player){
 	return {
 		moves: moves,
 		fens:fen_array,
-		player_positions:{
-			white:{
-				game_won:{},
-				game_lost:{}
-			},
-			black:{
-				game_won:{},
-				game_lost:{}
-			}
-		},
-		career_results:{
-			wins:{
-				white:0,
-				black:0
-			},
-			draw:{
-				white:0,
-				black:0
-			},
-			loss:{
-				white:0,
-				black:0
-			}
-		}
+		fens_by_turn:fens_by_turn
 	}
 	util.puts("run through " + player.name);
 }

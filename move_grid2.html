@@ -46,6 +46,7 @@
 
 		var ch = new Chess();
 		ch.load_pgn(eg_game2);
+		console.log(ch.ascii());
 		var game_history = ch.history();
 		var yPos = 0;
 		for(var i = 0; i<anand_moves.length;i++){
