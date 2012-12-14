@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Anand's game tree</title>
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/chess.js"></script>
+	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="/js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="/js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="/js/GameMetaData.js"></script>
+	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
+	<!--<script type="text/javascript" src="js/colour.js"></script>-->
+	<script type="text/javascript" src="/generated_data/anand_game_lines_1.json"></script> <!--//var anand_lines-->
+
+	<script type="text/javascript" src="/generated_data/anand_chart_positions_1.json"></script> <!--//var anand_positions-->	<script type="text/javascript">
+	var game_shape;
+	var eg_games = [ 
+		'[Event "Las Palmas"]\n\n[Site "Las Palmas"]\n[Date "1996.12.12"]\n[Round "4"]\n[White "Kasparov, Gary"]\n[Black "Anand, Viswanathan"]\n[Result "1/2-1/2"]\n[WhiteElo "2785"]\n[BlackElo "2735"]\n[ECO "B92"]\n\n1.e4 c5 2.Nf3 d6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 a6 6.Be2 e5 7.Nb3 Be7 8.O-O O-O\n9.Kh1 b5 10.a4 Bb7 11.Nd5 bxa4 12.Rxa4 Bc6 13.Ra3 Nxe4 14.Na5 Nf6 15.Nxc6 Nxc6\n16.Bc4 Nd4 17.Rh3 g6 18.Qd2 Nf5 19.Nxf6+ Bxf6 20.Bd5 h5 21.Bxa8 Qxa8 22.Ra3 Rc8\n23.c3 Qb7 24.Qd3 Rc6 25.Rd1 d5 26.Ra5 d4 27.cxd4 exd4 28.b4 Nh4 29.f3 Qxb4\n30.Rxa6 Rxa6 31.Qxa6 Bg7 32.Qd3 Nf5 33.Bf4 Qb2 34.g3 Kh7 35.Rd2 Qb7 36.Qe4 Qb5\n37.Qd3 Qb7 38.Qe4 Qb5 39.Kg1 Qa5 40.Qd3 Ne7 41.Rd1 Nd5 42.Bd2 Qa7 43.Re1 Qd7\n44.Kg2 Qa7 45.Kg1 Qa2 46.Re2 Qa1+ 47.Re1 Qa4 48.Rc1 Nc3 49.g4 Qa5 50.Re1 Qc5\n51.h3 Bf6 52.f4 h4 53.Qf3 Qb5 54.g5 Bg7 55.Re7 Qb1+ 56.Qf1 Qf5 57.Qe1 Qxh3\n58.Rxf7 Qg4+ 59.Kh2 h3 60.Qf1 Ne4 61.Be1 d3 62.Qxh3+ Qxh3+ 63.Kxh3 d2  1/2-1/2',
+		'[Event "Chess Classics Giants"]\n[Site "Frankfurt"]\n[Date "1998.06.18"]\n[Round "5"]\n[White "Anand, Viswanathan"]\n[Black "Kramnik, Vladimir"]\n[Result "1/2-1/2"]\n[WhiteElo "2770"]\n[BlackElo "2790"]\n[ECO "C42"]\n\n1.e4 e5 2.Nf3 Nf6 3.Nxe5 d6 4.Nf3 Nxe4 5.d4 d5 6.Bd3 Nc6 7.O-O Be7 8.c4 Nb4\n9.Be2 O-O 10.Nc3 Be6 11.Ne5 f6 12.Bg4 Bc8 13.Bxc8 Rxc8 14.Nf3 c5 15.Qe2 cxd4\n16.Nxd4 Re8 17.Rd1 Bf8 18.Be3 Rxc4 19.Nxe4 Rxe4 20.a3 Nc6 21.Nxc6 bxc6 22.Qd3 Re8\n23.Bxa7 Rce4 24.Be3 f5 25.b4 Qh4 26.b5 d4 27.Qc4+ Kh8 28.Rxd4 cxb5 29.Qxb5 Qf6\n30.Rdd1 f4 31.Bd4 Qe6 32.Qd3 f3 33.Be3 fxg2 34.a4 Qh3 35.Qc3 Rc8 36.Qd2 h6  1/2-1/2',
+		'[Event "Thessaloniki ol (Men)"]\n[Site "Thessaloniki"]\n[Date "1984.??.??"]\n[Round "10"]\n[White "Hamed, Ahmed"]\n[Black "Anand, Viswanathan"]\n[Result "0-1"]\n[WhiteElo ""]\n[BlackElo "2345"]\n[ECO "A04"]\n\n1.Nf3 Nf6 2.g3 g6 3.Bg2 Bg7 4.O-O O-O 5.d3 d6 6.Nbd2 c5 7.e4 Nc6 8.Re1 Ne8\n9.Nf1 b5 10.Rb1 Nc7 11.Be3 Bg4 12.h3 Bxf3 13.Bxf3 Nd4 14.Bg2 b4 15.Nd2 Rb8\n16.Nc4 Qd7 17.a3 a5 18.axb4 axb4 19.Ra1 Ncb5 20.Bd2 Nc6 21.Kh2 Qc7 22.f4 e6\n23.Rf1 Nbd4 24.Ra6 Ra8 25.Rxa8 Rxa8 26.c3 Nb5 27.Qb3 bxc3 28.bxc3 Rb8 29.Qc2 Na5\n30.Nxa5 Qxa5 31.c4 Bc3 32.Bxc3 Nxc3 33.Rc1 Na4 34.Ra1 Rb4 35.e5 dxe5 36.fxe5 Qa7\n37.Ra2 Qd7 38.Be4 Qd4 39.Bg2 Nc3 40.Ra3 Rb1 41.h4 Qg1+ 42.Kh3 Nd1 43.Ra2 Ra1n\44.Rb2 Nxb2 45.Qxb2 Qb1 46.Qe2 Ra3 47.Bf1 Ra2  0-1',
+		'[Event "Botvinnik Memorial"]\n[Site "Moscow RUS"]\n[Date "2011.09.02"]\n[Round "2"]\n[White "Aronian,L"]\n[Black "Anand,V"]\n[Result "0-1"]\n[WhiteElo "2807"]\n[BlackElo "2817"]\n[ECO "D10"]\n\n1.d4 d5 2.c4 c6 3.Nc3 Nf6 4.e3 g6 5.Nf3 Bg7 6.h3 O-O 7.Bd3 a6 8.O-O Nbd7\n9.a4 Re8 10.cxd5 cxd5 11.Bd2 b6 12.Qe2 Bb7 13.Rfd1 e5 14.dxe5 Nxe5 15.Be1 Nxf3+\n16.Qxf3 Qb8 17.Qf4 Qxf4 18.exf4 Nd7 19.a5 Nc5 20.Bf1 b5 21.f3 Nb3 22.Rab1 Nxa5\n23.Bf2 Nc4 24.Bd4 Ne3 25.Rd3 Bxd4 26.Rxd4 Rac8 27.Bd3 Kg7 28.Kf2 Nc4 29.Ne2 Nd2\n30.Rd1 Nb3 31.Rb4 Nc5 32.Rd4 Bc6 33.f5 a5 34.Bb1 b4 35.h4 Ba4 36.Rh1 Bb3\n37.fxg6 hxg6 38.h5 Ne6 39.hxg6 fxg6 40.Rd2 Bc4 41.Rh4 Kf6 42.Rh6 Rg8 43.Nd4 Nxd4\n44.Rxd4 a4 45.Rh7 a3 46.bxa3 bxa3 47.Rf4+ Ke5 48.g3 Rb8  0-1',
+		'[Event "Wch U20"]\n[Site "Kiljava"]\n[Date "1984.??.??"]\n[Round "?"]\n[White "Anand, Viswanathan"]\n[Black "Wolff, Patrick G"]\n[Result "0-1"]\n[WhiteElo "2285"]\n[BlackElo "2225"]\n[ECO "B09"]\n\n1.e4 d6 2.d4 Nf6 3.Nc3 g6 4.f4 Bg7 5.Nf3 O-O 6.e5 Nfd7 7.h4 c5 8.e6 fxe6 9.h5 gxh5 10.Rxh5 Nf6 11.Rh4 Nc6 12.Be3 Qa5 13.Bd3 cxd4 14.Nxd4 Nxd4 15.Bxd4 e5 16.fxe5 dxe5 17.Be3 e4 18.Bc4+ Kh8 19.Qd4 Bg4 20.Bb3 Rac8 21.Bd2 Qa6 22.Qe3 Nd5  0-1'];
+
+	function go(){
+		var h_scale = 1.5;
+		var v_scale = 2;
+
+
+		var canvas_width = 400 * h_scale;
+		var canvas_height = 400 * v_scale;
+		var move_increment = 20 * v_scale; //a move is actually NOTE: a black move and a white move
+		var marks = [0,5,10,15,20];
+		var stage = new createjs.Stage(move_grid);
+		var background = new createjs.Shape();
+		background.graphics.beginFill(createjs.Graphics.getRGB(0,0,0));
+		background.graphics.drawRect(0,0,canvas_width,canvas_height+40);
+		background.graphics.endFill();
+
+		background.graphics.beginFill(null);
+
+		//go through all the lines in the game_line array, drawing them to background
+		for (var l = 0; l<anand_lines.length;l++){
+			for(var m=0; m<anand_lines[l].length; m++){
+				var x_coord = anand_lines[l][m].x * h_scale;
+				var y_coord = canvas_height - (anand_lines[l][m].y * v_scale);
+				background.graphics.beginStroke(createjs.Graphics.getRGB(255, 255, 255, 0.01));
+				background.graphics.drawCircle(x_coord, y_coord, 3);
+				background.graphics.endStroke();
+			}
+		}
+
+//draw the move markers at 5, 10, 15, 20
+		var grid_colour = createjs.Graphics.getRGB(200, 200, 0)
+		background.graphics.beginStroke(grid_colour);
+		stage.addChild(background);
+		for(var i =0; i<marks.length;i++){
+			var y_pos = canvas_height - marks[i]*move_increment;
+
+			background.graphics.moveTo(0,y_pos);
+			background.graphics.lineTo(canvas_width-50, y_pos);
+			var t = new createjs.Text ( marks[i], "20px Helvetica" , grid_colour )
+			t.x = canvas_width-40,marks[i];
+			t.y = y_pos - 10;
+			stage.addChild(t);
+		}
+
+		//draw a specific game, different colour for the opening
+		stage.addChild(drawGame(eg_games[4]));
+		stage.addChild(drawGame(eg_games[0]));
+
+		function drawGame(game_pgn){
+			game_shape = new createjs.Shape();
+			var game = new Chess(game_pgn);
+			game.load_pgn(game_pgn);
+			var moves = game.history();
+			game.reset();
+			var game_length = Math.min(moves.length, 20);
+			//look up the opening, work out how many moves it is
+
+			game_shape.graphics.setStrokeStyle(1.5);
+			game_shape.graphics.beginStroke(createjs.Graphics.getRGB(255,0,0,1));
+			for(var m =0; m<game_length; m++){
+				game.move(moves[m]);
+				var fen = game.fen();
+				//look up move x fen in anand_positions
+				var board_config_position = anand_position[m][fen];
+				//if the move number is greater than the length of the opening switch colours
+				//draw a line to there
+				if(m==0){
+					game_shape.graphics.moveTo(board_config_position.x * h_scale, canvas_height - board_config_position.y * v_scale)
+				}else{
+					game_shape.graphics.lineTo(board_config_position.x * h_scale, canvas_height - board_config_position.y * v_scale)
+				}
+			}
+			return game_shape;
+		}
+
+		stage.update();
+		document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("move_grid").toDataURL() + '">image data</a>';
+	}
+
+
+	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+
+
+		#move10{
+			top: 50px;
+		}
+		#move20{
+			top: 100px;
+		}
+		#move50{
+			top:250px;
+		}
+		#move100{
+			top:500px;
+		}
+	</style>
+</head>
+<body onLoad="go()">
+<h1>Anand's game tree</h1>
+<div class="description">
+<p> Each game has a path through the posibility space defined by previously played games.
+ These lines are plotted, building a picture of the most common board states, points of convergence and showing the gradual move towards novel board configurations.</p>
+ <p>
+ The red line shows an each move from a single game.</p>
+ <p>
+ The further right the line moves the mofre novel the board configuration within the space of games Anand has played.</p>
+<p><b>The openings of Anand's 2680 games:</b> </p>
+</div>
+<div id="options"></div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="move_grid" width="650" height="1000"></canvas>
+</div>
+<div class="description"></div>
+
+</body>
+</html>

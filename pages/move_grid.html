@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Unordered move grid</title>
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/chess.js"></script>
+	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="/js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="/js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="/js/GameMetaData.js"></script>
+	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
+	<!--<script type="text/javascript" src="js/colour.js"></script>-->
+	<script type="text/javascript" src="/generated_data/Anand_moves_1.json"></script>
+	<script type="text/javascript">
+
+		
+
+	function go(){
+
+		var stage = new createjs.Stage(move_grid);
+		var background = new createjs.Shape();
+
+		var row_scale = 0.3;
+
+		var total_games = 0;
+		for(var t in anand_moves[0]){
+			total_games += anand_moves[0][t];
+		}
+
+		var row_height = 5;
+		var row_width = total_games * row_scale;
+
+		console.log("GAMES : " + total_games);
+
+		background.graphics.beginFill('#000000');
+		background.graphics.drawRect(0,0,row_width,anand_moves.length*row_height);
+		stage.addChild(background);
+
+		var yPos = 0;
+		for(var i = 0; i<anand_moves.length;i++){
+			
+
+			//each row is a turn
+			var row = new createjs.Container();
+			//number of games that were played until atleast that turn determines the width of the bar
+			var games_this_turn = 0;
+			var max_this_turn = 0;
+			for(var t in anand_moves[i]){
+				games_this_turn += anand_moves[i][t];
+				max_this_turn = Math.max(max_this_turn, anand_moves[i][t]);
+			}
+			var row_width = games_this_turn * row_scale;
+			var total_moves = Object.keys(anand_moves[i]).length;
+			var block_width = row_width / total_moves;
+			var xPos = (total_games * row_scale)/2 - (row_width/2);
+			console.log(anand_moves[i]);
+			for(var move in anand_moves[i]){
+				//work out colour value
+				var red = Math.floor((255 / max_this_turn) * anand_moves[i][move]);
+				if(i==0){
+					console.log(red);
+				}
+				var block = new createjs.Shape();
+				block.graphics.beginFill(createjs.Graphics.getRGB(red,0,0));
+				block.graphics.drawRect(xPos,0, block_width, row_height);
+				row.addChild(block);
+				xPos += block_width;
+			}
+			row.y = yPos;
+			stage.addChild(row);
+			
+			//subdivided into number of different moves made that turn
+			//each move block is coloured depending on how likely it is, value from 0-255 I guess
+			yPos+=row_height;
+		}
+		stage.update();
+
+		document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("move_grid").toDataURL() + '">image data</a>';
+	}
+
+////
+
+		//for a given player
+		//go through each of their games and record details of each one. both the exact move and piece used
+		//plot each played move down the page colour dependent on the proportion of times that move has been played (or that piece has been used?)
+		//highlight when nalimov points have been reached
+
+	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+		#move10{
+			top: 50px;
+		}
+		#move20{
+			top: 100px;
+		}
+		#move50{
+			top:250px;
+		}
+		#move100{
+			top:500px;
+		}
+	</style>
+</head>
+<body onLoad="go()">
+<h1>Unordered move grid</h1>
+<div class="description">
+ Every move Anand has made over 2000+ games. Each row is a turn, the coloured blocks represent moves that have been made in that turn, the more intense the colour the more times that move has been made. The move blocks get smaller as the move number increases, as there are more moves that have been made.
+</div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="move_grid" width="3000" height="3000"></canvas>
+
+	<div class="label" id="move10">10</div>
+	<div class="label" id="move20">20</div>
+	<div class="label" id="move50">50</div>
+	<div class="label" id="move100">100</div>
+</div>
+
+</body>
+</html>
