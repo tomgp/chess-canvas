@@ -4,12 +4,28 @@ var util = require('util');
 var fs = require('fs');
 var ch = require('/Users/tompearson/Sites/vendor/chess.js');
 
+function symetrical_fen(fen_string){
+	//get the string before the first space, lowercase, return
+	return fen_string.split(" ")[0].toLowerCase();
+}
 
+var fen_files = [
+	'../generated_data/Anand_fen.json'
+	,'../generated_data/Adams_fen.json'
+	,'../generated_data/Capablanca_fen.json'
+	,'../generated_data/Kramnik_fen.json'
+	,'../generated_data/Nimzowitsch_fen.json'];
 
 //get the fen frequency file
-var fen_file = '../generated_data/Anand_fen.json';
-var fen_string = fs.readFileSync(fen_file,'utf8'); 
-var fen_data = JSON.parse(fen_string);
+var fen_data = [];
+for (var f = 0; f<fen_files.length; f++){
+	var fen_file = fen_files [f];
+	var fen_string = fs.readFileSync(fen_file,'utf8'); 
+	var arr = JSON.parse(fen_string);
+	fen_data = fen_data.concat( arr );
+}
+
+
 
 //create the fen lookup object//
 var FEN_symetrical_totals_lookup = {};
@@ -36,16 +52,32 @@ for(state in FEN_symetrical_totals_lookup){
 util.puts("unique states: " + unique_states);
 util.puts("total  states: " + total_states);
 
+
+
+//go through the lookup and determine the likelyhood of each fen in the grand sceme of things i.e. frequency/ total board states
+//record the min and the max so we have a range of values (with which we will scale the angle for each line drawn in the final vis)
+var frequency_range = {max:0, min:1};
 for(state in FEN_symetrical_totals_lookup){ 
 	//work out the proportion of the time a given symetrical state occurs
 	var frequency = FEN_symetrical_totals_lookup[state]/total_states;
 	FEN_probability_look_up[state] = frequency;
+	frequency_range.max = Math.max(frequency_range.max, frequency);
+	frequency_range.min = Math.min(frequency_range.min, frequency);
 }
 
-//go through the lookup and determine the likelyhood of each fen in the grand sceme of things i.e. frequency/ total board states
-//record the min and the max so we have a range of values (with which we will scale the angle for each line drawn in the final vis)
+var out_object = {
+	lookup:FEN_probability_look_up,
+	range:frequency_range
+};
 
-function symetrical_fen(fen_string){
-	//get the string before the first space, lowercase, return
-	return fen_string.split(" ")[0].toLowerCase();
-}
+//write out the out_object
+
+//write out the master game line array
+var out_file_live = fs.openSync('../generated_data/fen_probability_lookup_live.json', 'w');
+	fs.writeSync(out_file_live, "var fen_probability_lookup = " + JSON.stringify(out_object));
+	fs.closeSync(out_file_live);
+
+var out_file_working = fs.openSync('../generated_data/fen_probability_lookup_working.json', 'w');
+	fs.writeSync(out_file_working, JSON.stringify(out_object));
+	fs.closeSync(out_file_working);
+

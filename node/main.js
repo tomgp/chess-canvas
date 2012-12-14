@@ -13,7 +13,19 @@ init();
 
 var players = [
 	{
+		name:'Capablanca', data:'../pgn/Capablanca.pgn'
+	},
+	{
+		name:'Anand', data:'../pgn/Anand.pgn'
+	},
+	{
+		name:'Kramnik', data:'../pgn/Kramnik.pgn'
+	},
+	{
 		name:'Adams', data:'../pgn/Adams.pgn'
+	},
+	{
+		name:'Nimzowitsch', data:'../pgn/Nimzowitsch.pgn'
 	}
 ];
 
@@ -25,7 +37,7 @@ for (var p = 0; p<players.length; p++){
 
 	//maybe trim FEN data, remove anything configuration that occurs only once
 	var out_file = fs.openSync('../generated_data/' + players[p].name + '_fen.json', 'w');
-		fs.writeSync(out_file, "var " + players[p].name + '_fen = ' + fen_frequencies);
+		fs.writeSync(out_file, fen_frequencies);
 		fs.closeSync(out_file);
 
 	out_file = fs.openSync('../generated_data/' + players[p].name + '_moves.json', 'w');
@@ -69,12 +81,9 @@ function runGames(player){
 		if(games_list[i] != ""){
 			var c = new ch.Chess();
 			c.load_pgn(games_list[i]);
-			util.puts("loaded");
 			var game_moves = c.history();
-			util.puts("got history");
 			c.reset();
-			util.puts("reset");
-			var move_limit = Math.min(game_moves.length, 20); 
+			var move_limit = Math.min(game_moves.length, 40); 
 			for(var m=0; m < move_limit; m++){
 				if(!moves[m]){
 					moves[m] = {};
