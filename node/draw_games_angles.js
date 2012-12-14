@@ -24,6 +24,7 @@ var scale = max_angle / frequencies.range.max - frequencies.range.min;
 var deg_2_rad = 180/Math.PI;
 for (var i = 0 ; i < game_list.length ; i++){//for each game in the PGN list
 	if(game_list[i] != ""){
+		util.puts(i);
 		var meta = new GameMetaData(game_list[i]);
 		var game = new ch.Chess();				//create it as a Chess object
 		game.load_pgn(game_list[i]);		//load the game data
@@ -38,8 +39,8 @@ for (var i = 0 ; i < game_list.length ; i++){//for each game in the PGN list
 			var p = frequencies.lookup[sym_fen]; //look up the fen probability
 			var angle = Math.abs(scale * p - max_angle) * deg_2_rad; //work out an angle based on that convert to radians.
 			line.push ({				//work out a unit vector based on that angle
-				x:Math.cos(angle);
-				y:Math.sin(angle);
+				x:Math.cos(angle),
+				y:Math.sin(angle)
 			})
 		}
 		game_lines.push(line);
@@ -47,6 +48,10 @@ for (var i = 0 ; i < game_list.length ; i++){//for each game in the PGN list
 }
 
 //save the game lines data to a file
+
+var out_file = fs.openSync('../generated_data/game_lines_anand_angles.json', 'w');
+	fs.writeSync(out_file, "var anand_lines = " + JSON.stringify(game_lines));
+	fs.closeSync(out_file);
 
 function symetrical_fen(fen_string){
 	//get the string before the first space, lowercase, return
