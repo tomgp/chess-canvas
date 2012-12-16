@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Anand's game tree</title>
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/chess.js"></script>
+	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="/js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="/js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="/js/GameMetaData.js"></script>
+	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
+
+	<script type="text/javascript" src="/generated_data/game_lines_anand_angles.json"></script> <!--//var anand_lines-->
+
+	<script type="text/javascript">
+
+	var line_alpha = 0.01;
+
+	function go(){
+		var h_scale = 100;
+		var v_scale = 100;
+
+		var x_origin = 400;
+		var y_origin = 400;
+
+
+		var canvas_width = 400 * h_scale;
+		var canvas_height = 400 * v_scale;
+		var stage = new createjs.Stage(move_grid);
+		var background = new createjs.Shape();
+		background.graphics.beginFill(createjs.Graphics.getRGB(0,0,0));
+		background.graphics.drawRect(0,0,canvas_width + 100,canvas_height+100);
+		background.graphics.endFill();
+
+		//draw grid
+		var grid = new createjs.Shape();
+		grid.y = y_origin;
+		grid.x = x_origin;
+		grid.graphics.setStrokeStyle(2);
+		for(var g = 0; g<50; g++){
+			if(g%2 == 0){
+				grid.graphics.beginStroke(createjs.Graphics.getRGB(255,255,0,0.5));
+				grid.graphics.drawCircle(0,0,g*h_scale);
+				grid.graphics.endStroke();
+			}
+		}
+
+		var chart = new createjs.Shape();
+		chart.rotation = -(90+45);
+		chart.y = y_origin;
+		chart.x = x_origin;
+		chart.graphics.setStrokeStyle(1);
+		//go through all the lines in the game_line array, drawing them to background
+		for (var l = 0; l<anand_lines.length;l++){
+			chart.graphics.beginStroke(createjs.Graphics.getRGB(255,255,255,line_alpha));
+			chart.graphics.moveTo(0, 0);
+			for(var m=0; m<anand_lines[l].length; m++){
+				chart.graphics.lineTo(
+					anand_lines[l][m].x * h_scale, 
+					anand_lines[l][m].y * v_scale);
+			}
+		}
+		stage.addChild(background);
+		stage.addChild(grid);
+		stage.addChild(chart);
+		
+
+
+
+		stage.update();
+		document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("move_grid").toDataURL() + '">image data</a>';
+	}
+
+
+	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+		#move10{
+			top: 50px;
+		}
+		#move20{
+			top: 100px;
+		}
+		#move50{
+			top:250px;
+		}
+		#move100{
+			top:500px;
+		}
+	</style>
+</head>
+<body onLoad="go()">
+<h1>Anand's game tree</h1>
+<div class="description">
+<p><b>The openings of Anand vs Kramnik - 155 games, colour coded by opening group:</b> </p>
+
+</div>
+<div id="options"></div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="move_grid" width="1000" height="1000"></canvas>
+</div>
+<div class="description"></div>
+
+</body>
+</html>

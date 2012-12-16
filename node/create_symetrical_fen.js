@@ -11,10 +11,11 @@ function symetrical_fen(fen_string){
 
 var fen_files = [
 	'../generated_data/Anand_fen.json'
-	,'../generated_data/Adams_fen.json'
-	,'../generated_data/Capablanca_fen.json'
+	//,'../generated_data/Adams_fen.json'
+	//,'../generated_data/Capablanca_fen.json'
 	,'../generated_data/Kramnik_fen.json'
-	,'../generated_data/Nimzowitsch_fen.json'];
+	//,'../generated_data/Nimzowitsch_fen.json'
+];
 
 //get the fen frequency file
 var fen_data = [];
@@ -60,15 +61,28 @@ var frequency_range = {max:0, min:1};
 for(state in FEN_symetrical_totals_lookup){ 
 	//work out the proportion of the time a given symetrical state occurs
 	var frequency = FEN_symetrical_totals_lookup[state]/total_states;
-	FEN_probability_look_up[state] = frequency;
+	FEN_probability_look_up[state] = frequency ; //*10 
 	frequency_range.max = Math.max(frequency_range.max, frequency);
 	frequency_range.min = Math.min(frequency_range.min, frequency);
 }
 
 var out_object = {
 	lookup:FEN_probability_look_up,
-	range:frequency_range
+	range:frequency_range,
+	distribution:object_to_sorted_array(FEN_probability_look_up)
 };
+
+
+function object_to_sorted_array(o){
+	var arr = [];
+	for(var key in o){
+		arr.push(o[key]);
+	}
+	arr.sort();
+	return arr;
+}
+
+util.puts("frequency range " + frequency_range.max + " -> " + frequency_range.min);
 
 //write out the out_object
 
@@ -79,5 +93,9 @@ var out_file_live = fs.openSync('../generated_data/fen_probability_lookup_live.j
 
 var out_file_working = fs.openSync('../generated_data/fen_probability_lookup_working.json', 'w');
 	fs.writeSync(out_file_working, JSON.stringify(out_object));
+	fs.closeSync(out_file_working);
+
+var out_file_working = fs.openSync('../generated_data/fen_distribution.csv', 'w');
+	fs.writeSync(out_file_working, out_object.distribution.join("\n"));
 	fs.closeSync(out_file_working);
 

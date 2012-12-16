@@ -12,21 +12,21 @@ var games = {};
 init();
 
 var players = [
-	{
+	/*{
 		name:'Capablanca', data:'../pgn/Capablanca.pgn'
-	},
+	},*/
 	{
 		name:'Anand', data:'../pgn/Anand.pgn'
 	},
 	{
 		name:'Kramnik', data:'../pgn/Kramnik.pgn'
-	},
+	}/*,
 	{
 		name:'Adams', data:'../pgn/Adams.pgn'
 	},
 	{
 		name:'Nimzowitsch', data:'../pgn/Nimzowitsch.pgn'
-	}
+	}*/
 ];
 
 for (var p = 0; p<players.length; p++){

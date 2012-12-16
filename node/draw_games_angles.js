@@ -3,7 +3,6 @@ var fs = require('fs');
 var ch = require('/Users/tompearson/Sites/vendor/chess.js');
 
 // configuration
-//max angle
 init();
 var max_angle = 45; // how wide do we want the cone to be? 45 implies a total cone angle of 90 as the lines will curve right or left randomly
 var max_turn = 40;
@@ -21,10 +20,11 @@ var game_list = games_string.replace(/\[Event/g, "!NEW GAME![Event").split('!NEW
 var game_lines = [];
 
 var scale = max_angle / frequencies.range.max - frequencies.range.min;
-var deg_2_rad = 180/Math.PI;
-for (var i = 0 ; i < game_list.length ; i++){//for each game in the PGN list
+var deg_2_rad = Math.PI/180;
+var limit = Math.min(game_list.length, 5000);
+for (var i = 0 ; i < limit ; i++){//for each game in the PGN list
 	if(game_list[i] != ""){
-		util.puts(i);
+		util.puts("_______ " + i + " _______ ");
 		var meta = new GameMetaData(game_list[i]);
 		var game = new ch.Chess();				//create it as a Chess object
 		game.load_pgn(game_list[i]);		//load the game data
@@ -37,11 +37,11 @@ for (var i = 0 ; i < game_list.length ; i++){//for each game in the PGN list
 			game.move(moves[j]);			//enact the move on the chess object
 			var sym_fen = symetrical_fen(game.fen());//get the fen and 'symetricalise' it
 			var p = frequencies.lookup[sym_fen]; //look up the fen probability
-			var angle = Math.abs(scale * p - max_angle) * deg_2_rad; //work out an angle based on that convert to radians.
-			line.push ({				//work out a unit vector based on that angle
-				x:Math.cos(angle),
-				y:Math.sin(angle)
-			})
+			var angle = scale * p * 0.0174532925; //work out an angle based on that convert to radians.
+			//if this starts at the last point i.e. line[j] (we're one out already from having pushed the origin on before the loop began)
+			//calculate where the vector will intersect a circle of radius i, center 0,0 (multiplying unit vector by 10 to ensure intersection)
+			var coords = circle_line_intersection(0, 0, j+1, line[j].x, line[j].y, 10*Math.cos(angle), 10*Math.sin(angle));
+			line.push ({x:coords.x, y:coords.y});
 		}
 		game_lines.push(line);
 	}
@@ -52,6 +52,23 @@ for (var i = 0 ; i < game_list.length ; i++){//for each game in the PGN list
 var out_file = fs.openSync('../generated_data/game_lines_anand_angles.json', 'w');
 	fs.writeSync(out_file, "var anand_lines = " + JSON.stringify(game_lines));
 	fs.closeSync(out_file);
+
+//http://stackoverflow.com/questions/1549909/intersection-on-circle-of-vector-originating-inside-circle
+function circle_line_intersection(circleX, circleY, r, rayX, rayY, rayVX, rayVY){
+	var xDiff = rayX - circleX;
+	var yDiff = rayY - circleY;
+	var a = rayVX * rayVX + rayVY * rayVY;
+	var b = 2 * (rayVX * (rayX - circleX) + rayVY * (rayY - circleY));
+	var c = xDiff * xDiff + yDiff * yDiff - r * r;
+	var disc = b * b - 4 * a * c;
+	if (disc >= 0) {
+	    var t = (-b + Math.sqrt(disc)) / (2 * a);
+	    var x_coord = rayX + rayVX * t;
+	    var y_coord = rayY + rayVY * t;
+	    // Do something with point.
+	}
+	return {x:x_coord, y:y_coord};
+}
 
 function symetrical_fen(fen_string){
 	//get the string before the first space, lowercase, return
