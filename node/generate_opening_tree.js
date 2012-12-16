@@ -13,14 +13,6 @@
 		},
 	}
 }
-
-d3 format
-{
-	name:$move
-	children:[
-		{},{},{}
-	]
-}
 */
 
 var util = require('util');
@@ -32,20 +24,31 @@ var openings_spreadsheet = '../pgn/chess_openings_adjusted.csv';
 var openings_text = fs.readFileSync(openings_spreadsheet,'utf8');
 var openings = d3.csv.parse(openings_text);
 
-var move_tree = {};
+var move_tree = {children:{}, properties:{x:0,y:0,visited:0}};
+var x_values = [];
+var width_at_move = [];
 
 for(var i = 0; i<openings.length;i++){
 	var game = new ch.Chess();
 	util.puts(openings[i].name)
 	game.load_pgn(openings[i].moves);
 	var history = game.history();
-	var current_node = move_tree;
-	var current_d3_node = d3_move_tree;
+	var current_node = move_tree.children;
 	for(var m = 0; m<history.length; m++){
 		var move = history[m];
 		if(!current_node[move]){
+			if(!x_values[m]){
+				x_values[m] = 0;
+			}
+			if(!width_at_move[m]){
+				width_at_move[m] = 0;
+			}
+			width_at_move[m]++;
+			x_values[m]++;
 			current_node[move] = {properties:{
 					visited:0,
+					x:x_values[m],
+					y:m+1,
 					part_of:[],
 					end_of:[]
 				},
@@ -62,7 +65,16 @@ for(var i = 0; i<openings.length;i++){
 	}
 }
 
+var output_struct = {
+	width_at_move:width_at_move,
+	tree:move_tree
+};
+
 //write out the move tree
 var out_file = fs.openSync('../generated_data/openings_tree.json', 'w');
-	fs.writeSync(out_file, JSON.stringify(move_tree));
+	fs.writeSync(out_file, JSON.stringify(output_struct));
+	fs.closeSync(out_file);
+
+out_file = fs.openSync('../generated_data/openings_tree.live.json', 'w');
+	fs.writeSync(out_file, "var openings_tree = " + JSON.stringify(output_struct));
 	fs.closeSync(out_file);

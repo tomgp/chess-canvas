@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Chess openings</title>
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/chess.js"></script>
+	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="/js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="/js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="/js/GameMetaData.js"></script>
+	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
+
+	<script type="text/javascript" src="/generated_data/openings_tree.live.json"></script> <!--//var openings_tree = -->
+
+	<script type="text/javascript">
+
+	var line_alpha = 0.1;
+
+	function go(){
+		var x_scale = 30;
+		var y_scale = 30;
+		var stage = new createjs.Stage(move_grid);
+		var background = new createjs.Shape();
+		background.graphics.beginFill('#000000');
+		background.graphics.drawRect(0,0,1000,1000);
+		stage.addChild(background);
+		
+
+		var lines = new createjs.Shape();
+		lines.graphics.setStrokeStyle(1);
+		lines.graphics.beginStroke(createjs.Graphics.getRGB(255,255,255,line_alpha));
+		draw_node(openings_tree.tree, 500, 0, lines, 0);
+		stage.addChild(lines);
+		
+
+		function draw_node(node, origin_x, origin_y, display_object, depth){
+			var x_pos = node.properties.x * x_scale;
+			var y_pos = node.properties.y * y_scale;
+			if(node.properties.part_of && node.properties.part_of.indexOf("D19")>-1){
+				lines.graphics.beginStroke(createjs.Graphics.getRGB(255,0,0,1));
+			}else{
+				lines.graphics.beginStroke(createjs.Graphics.getRGB(255,255,255,line_alpha));
+			}
+			display_object.graphics.moveTo(origin_x, origin_y);
+			display_object.graphics.lineTo(x_pos, y_pos);
+			//for each child draw that node
+			for(var child in node.children){
+				draw_node(node.children[child], node.properties.x, node.properties.y, display_object, depth+1);
+			}
+		}
+		stage.update();
+
+		document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("move_grid").toDataURL() + '">image data</a>';
+	}
+
+
+	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+	</style>
+</head>
+<body onLoad="go()">
+<h1>Chess openings</h1>
+<div class="description">
+<p><b>Chess openings</b> </p>
+
+</div>
+<div id="options"></div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="move_grid" width="1000" height="1000"></canvas>
+</div>
+<div class="description"></div>
+
+</body>
+</html>
