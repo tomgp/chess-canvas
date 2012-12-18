@@ -1,0 +1,144 @@
+<html>
+<head>
+	<title>Mid game advantage</title>
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/chess.js"></script>
+	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="/js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="/js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="/js/GameMetaData.js"></script>
+	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
+
+	<script type="text/javascript" src="/generated_data/dummy_advantage_anand_carlsen.live.json"></script> <!--//var advantage_lines = -->
+
+	<script type="text/javascript">
+		advantage_lines.longest_game = Math.ceil(advantage_lines.longest_game/10)*10;
+		var v_scale = 10; //px per half move
+		var h_scale = 40; //px per pawn value
+		var height = v_scale * advantage_lines.longest_game;
+
+		console.log(height)
+
+		function drawBackgroundLines(line_set){
+			var alpha = 0.6;
+			var background_lines = new createjs.Container();
+			var colour = createjs.Graphics.getRGB(100,100,0,alpha);
+			for(var i = 0; i<line_set.length; i++){
+				var l = drawLine(
+					line_set[i], 
+					colour, 
+					colour,
+					1);
+				background_lines.addChild(l);
+			}
+			return background_lines;
+		}
+
+		function drawLine(line, first_colour, second_colour, thickness){
+			var l = new createjs.Shape();
+			l.graphics.setStrokeStyle(thickness);
+			l.graphics.beginStroke(first_colour);
+			var last_x = 0;
+			var last_y = height;
+
+			for(var i = 0; (i+1)<=line.length; i+=2){
+				l.graphics.moveTo(last_x, last_y);
+				x = line[i] * h_scale;
+				y = height - i * v_scale;
+				l.graphics.lineTo(x, y);
+				last_x = line[i+1] * h_scale;
+				last_y = height - (i+1) * v_scale;
+			}
+
+			l.graphics.setStrokeStyle(thickness);
+			l.graphics.beginStroke(second_colour);
+			last_x = line[1] * h_scale;
+			last_y = height - v_scale;
+			for(var i = 1; (i+1)<=line.length; i+=2){
+				l.graphics.moveTo(last_x, last_y);
+				x = line[i] * h_scale;
+				y = height - i * v_scale;
+				l.graphics.lineTo(x, y);
+				last_x = line[i+1] * h_scale;
+				last_y = height - (i+1) * v_scale;
+			}
+			l.graphics.endStroke();
+			l.graphics.beginFill(createjs.Graphics.getRGB(255,0,0,0.5));
+			var last_element = line.length-1;
+			l.graphics.drawCircle(line[last_element] * h_scale, height - last_element * v_scale, 4)
+			return l;
+		}
+
+		function even(i){
+			return (i%2 == 0);
+		}
+
+		function drawAxes(){
+			var container = new createjs.Container();
+			var axes = new createjs.Shape();
+			container.addChild(axes);
+			axes.graphics.setStrokeStyle(0.5);
+			var colour = createjs.Graphics.getRGB(255,255,255,0.5);
+			axes.graphics.beginStroke(colour);
+			for(var i = 0; i <= advantage_lines.longest_game; i+=10){
+				axes.graphics.moveTo(-6 * h_scale, height - i*v_scale +0.5);
+				axes.graphics.lineTo(6 * h_scale, height - i*v_scale +0.5);
+				var t = new createjs.Text(i/2, "25px Helvetica", colour);
+				t.x = 6 * h_scale + 10;
+				t.y = height - i * v_scale - 12;
+				container.addChild(t);
+			}
+
+			for(var i = -6; i<=6 ;i+=1){
+				axes.graphics.moveTo(i * h_scale +0.5, height);
+				axes.graphics.lineTo(i * h_scale +0.5, height - v_scale * advantage_lines.longest_game);
+
+				if(i%6 == 0){
+
+				}
+			}
+			var white_text = new createjs.Text("White advantage > ", "25px Helvetica", colour);
+			var black_text = new createjs.Text(" < Black advantage", "25px Helvetica", colour);
+			white_text.x = 20;
+			white_text.y = height;
+			black_text.x = -6 * h_scale;
+			black_text.y = height;
+			container.addChild(white_text);
+			container.addChild(black_text);
+			return container;
+		}
+
+		function go(){
+			var stage = new createjs.Stage(vis);
+			var chart = new createjs.Container();
+
+			var axes = drawAxes();
+			var background = drawBackgroundLines(advantage_lines.all_lines);
+			background.alpha = 0.5;
+			var main_line = drawLine(advantage_lines.all_lines[13], createjs.Graphics.getRGB(255,255,255), createjs.Graphics.getRGB(0,0,0), 2);
+			chart.x = 250;
+			chart.y = 20; 
+
+			chart.addChild(background);
+			chart.addChild(axes);
+			chart.addChild(main_line);
+			stage.addChild(chart);
+			stage.update();
+		}
+	</script>
+</head>
+<body onLoad="go()">
+<h1>Midgame advantage</h1>
+<div class="description">
+	Anand vs Carlsen
+</div>
+<div id="options"></div>
+<div id="extra">
+</div>
+<div class="visualisation">
+	<canvas id="vis"  width="1000" height="2000"></canvas>
+</div>
+</body>
+</html>
