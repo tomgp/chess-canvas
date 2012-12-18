@@ -36,43 +36,42 @@
 			return background_lines;
 		}
 
+
 		function drawLine(line, first_colour, second_colour, thickness){
-			var l = new createjs.Shape();
-			l.graphics.setStrokeStyle(thickness);
-			l.graphics.beginStroke(first_colour);
-			var last_x = 0;
-			var last_y = height;
+			var c = new createjs.Container();
+			var l_white = new createjs.Shape();
+			var l_black = new createjs.Shape();
+			var end = new createjs.Shape();
 
-			for(var i = 0; (i+1)<=line.length; i+=2){
-				l.graphics.moveTo(last_x, last_y);
-				x = line[i] * h_scale;
-				y = height - i * v_scale;
-				l.graphics.lineTo(x, y);
-				last_x = line[i+1] * h_scale;
-				last_y = height - (i+1) * v_scale;
+			c.addChild(l_white);
+			c.addChild(l_black);
+			c.addChild(end);
+
+			l_white.graphics.setStrokeStyle(thickness);
+			l_white.graphics.beginStroke(second_colour);
+			l_black.graphics.setStrokeStyle(thickness);
+			l_black.graphics.beginStroke(first_colour);
+			var x = 0;
+			var y = height;
+			for(var i=0;i<line.length;i++){
+				if(i%2==0){
+					l_white.graphics.moveTo(x,y);
+					x = line[i] * h_scale;
+					y = height - i * v_scale;
+					l_white.graphics.lineTo(x,y);
+				}else{
+					l_black.graphics.moveTo(x,y);
+					x = line[i] * h_scale;
+					y = height - i * v_scale;
+					l_black.graphics.lineTo(x,y);
+				}
 			}
 
-			l.graphics.setStrokeStyle(thickness);
-			l.graphics.beginStroke(second_colour);
-			last_x = line[1] * h_scale;
-			last_y = height - v_scale;
-			for(var i = 1; (i+1)<=line.length; i+=2){
-				l.graphics.moveTo(last_x, last_y);
-				x = line[i] * h_scale;
-				y = height - i * v_scale;
-				l.graphics.lineTo(x, y);
-				last_x = line[i+1] * h_scale;
-				last_y = height - (i+1) * v_scale;
-			}
-			l.graphics.endStroke();
-			l.graphics.beginFill(createjs.Graphics.getRGB(255,0,0,0.5));
 			var last_element = line.length-1;
-			l.graphics.drawCircle(line[last_element] * h_scale, height - last_element * v_scale, 4)
-			return l;
-		}
-
-		function even(i){
-			return (i%2 == 0);
+			
+			end.graphics.beginFill('#FF0000');
+			end.graphics.drawCircle(line[last_element] * h_scale, height - last_element * v_scale, 4)
+			return c;
 		}
 
 		function drawAxes(){
@@ -92,6 +91,11 @@
 			}
 
 			for(var i = -6; i<=6 ;i+=1){
+				if(i==0){
+					axes.graphics.setStrokeStyle(3);
+				}else{
+					axes.graphics.setStrokeStyle(0.5);
+				}
 				axes.graphics.moveTo(i * h_scale +0.5, height);
 				axes.graphics.lineTo(i * h_scale +0.5, height - v_scale * advantage_lines.longest_game);
 
@@ -126,13 +130,16 @@
 			chart.addChild(main_line);
 			stage.addChild(chart);
 			stage.update();
+
+			document.getElementById("extra").innerHTML = '<a href="' + document.getElementById("vis").toDataURL() + '">image data</a>';
 		}
 	</script>
 </head>
 <body onLoad="go()">
 <h1>Midgame advantage</h1>
 <div class="description">
-	Anand vs Carlsen
+	Anand vs Carlsen (55 games).
+	<p>The yellow lines show historical games. The black and white striped line show the "current" game. Red circles are added to emphasise when a game ends.</p> 
 </div>
 <div id="options"></div>
 <div id="extra">
