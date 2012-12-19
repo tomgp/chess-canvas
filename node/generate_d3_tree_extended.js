@@ -50,10 +50,10 @@ for(var i = 0; i<openings.length;i++){
 		game.move(move);
 		var next_index = -1;
 		//get the index of the node with this move as its name
-		node_name = move;	 // TODO! SHOULD give us a unique and repeatable id
+		node_name = node_name + "_" + move;	 // TODO! SHOULD give us a unique and repeatable id
 		util.puts(node_name);
 		for(var c = 0; c < current_node.children.length; c++){
-			if(current_node.children[c].name.split("_")[0] == move){
+			if(current_node.children[c].move == move){
 				next_index = c;
 			}
 		}
@@ -61,6 +61,7 @@ for(var i = 0; i<openings.length;i++){
 		if(next_index < 0){	
 			current_node.children.push({
 				name:node_name,
+				move:move,
 				children:[]
 			});
 			next_index = current_node.children.length - 1; 

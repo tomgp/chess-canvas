@@ -12,11 +12,9 @@
 	<script type="text/javascript" src="/js/GameMetaData.js"></script>
 	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
 
-	<script type="text/javascript" src="/generated_data/d3_openings_tree_extended.live.json"></script> <!--//var openings_tree = -->
+	<script type="text/javascript" src="/generated_data/d3_openings_tree.live.json"></script> <!--//var openings_tree = -->
 
 	<script type="text/javascript">
-
-	var linescale = 0.1;
 
 	function go(){
 		var vis = d3.select("#d3_viz").append("svg:svg")
@@ -36,50 +34,23 @@
 		var link = d3.svg.diagonal()
 				.projection( function(d){ return [d.x, d.y]; } );
 
-		var nodes = tree.nodes(openings_tree.tree);
-		//console.log(nodes); 
+		var nodes = tree.nodes(openings_tree);
+		console.log(nodes); 
 		var link = vis.selectAll("pathlink")
 			.data(tree.links(nodes))
 			.enter().append("svg:path")
 			.attr("class", "link")
-			.attr("stroke-width",function(d){
-					//TODO look up the node weight and assign a thicness accordingly  ;
-					var thickness = Math.log(openings_tree.lookup[d.target.name].weight);
-					return thickness;
-				}
-			).attr("stroke",function(d){
-				//TODO look up the node opening group and assign a colour accordingly  ;
-					return getECOColour(openings_tree.lookup[d.target.name].opening_groups);
-				}
-			)
 			.attr("d", link);
 
-		/*var node = vis.selectAll("g.node")
+		var node = vis.selectAll("g.node")
 			.data(nodes)
 			.enter().append("svg:g")
-			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
-
-		node.append("svg:circle")
-			.attr("r", 3.5);
-		node.append("svg:text")
-			.attr("dx", function(d) { return d.x < 180 ? 8 : -8; })
-			.attr("dy", ".31em")
-			.text(function(d) { return d.name.split("_")[1]; });*/
+			.attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
 		//node.append("svg:circle")
 		//	.attr("r", 4.5);
-	}
 
-	function getECOColour(ECO_codes){
-		console.log(ECO_codes);
-		colours = {
-			A:"#FF85FF",
-			B:"#0096FF",
-			C:"#8EFA00",
-			D:"#FF9300",
-			E:"#531B93"
-		}
-		return colours[ECO_codes[0]];
+
 	}
 
 
@@ -95,8 +66,8 @@
 
 		.link {
 			fill: none;
-			//stroke: #000;
-			//stroke-width: 1px;
+			stroke: #000;
+			stroke-width: 1px;
 		}
 
 
