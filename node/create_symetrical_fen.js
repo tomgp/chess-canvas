@@ -9,6 +9,7 @@ function symetrical_fen(fen_string){
 	return fen_string.split(" ")[0].toLowerCase();
 }
 
+
 var fen_files = [
 	'../generated_data/Anand_fen.json'
 	//,'../generated_data/Adams_fen.json'
