@@ -19,22 +19,30 @@
 	var linescale = 0.1;
 
 	function go(){
+		var mode = "all"
+		if(window.location.hash != ""){
+			mode = window.location.hash.substring(1);
+		}
+		console.log(mode);
+		draw(mode); //Kramnik, Anand, Kramnic_and_Anand, Kramnik_vs_Anand
+	}
+
+	function draw(draw_option){
 		var vis = d3.select("#d3_viz").append("svg:svg")
-			.attr("width", 1000)
+			.attr("width", 2000)
 			.attr("height", 1000)
-			.append("svg:g");
+			.append("svg:g")
+			.attr("transform", "translate(1000, 1000)");;
 
 		var tree = d3.layout.tree()
 			.size([1000,1000]);
 
-		var link = d3.svg.line()
-			.x(function(d) { return d.x; })
-		    .y(function(d) { return d.y; })
-		    .interpolate("basis");
+/*		var link = d3.svg.diagonal()
+			.projection( function(d){ return [d.x, 1000 - d.y]; } );*/
 
-
-		var link = d3.svg.diagonal()
-				.projection( function(d){ return [d.x, d.y]; } );
+		var link = d3.svg.diagonal.radial()
+			.projection(function(d) { 
+				return [d.y, (d.x-500)/400]; });
 
 		var nodes = tree.nodes(openings_tree.tree);
 		//console.log(nodes); 
@@ -46,32 +54,32 @@
 					//TODO look up the node weight and assign a thicness accordingly  ;
 					var thickness = Math.log(openings_tree.lookup[d.target.name].weight);
 					return thickness;
-				}
-			).attr("stroke",function(d){
-					return getPlayerColour(openings_tree.lookup[d.target.name].players);
-				}
-			)
+				})
+			.attr("stroke",function(d){
+					return getPlayerColour(openings_tree.lookup[d.target.name].players, draw_option);
+				})
+			.attr("stroke-opacity",function(d){ 
+					return getOpacity(openings_tree.lookup[d.target.name].players, draw_option);
+				})
 			.attr("d", link);
 	}
 
-	function getPlayerColour(players){
-		//if there's anand vs kramnik
+	function getPlayerColour(players, draw_option){
 		if(players){
-			if(players.Anand_Kramnik){
-				return ("#FFFFFF");
-			}
-			if(players.Anand){
-				if(players.Kramnik){
-					return ("#FF00FF");//if there's anand and kramnik
-				}
-				return ("#FF0000"); //if there's just ananad
-			}
-			if(players.Kramnik){
-				//if there's just kramnik
-				return ("#0000FF");
+			if(players[draw_option]){
+				return "#DDDDDD";
 			}
 		}
-		return "#00000000"; //default
+		return "#666666";
+	}
+
+	function getOpacity(players, draw_option){
+		if(players){
+			if(players[draw_option]){
+				return 1;
+			}
+		}
+		return 0.5;
 	}
 
 	function getECOColour(ECO_codes){
