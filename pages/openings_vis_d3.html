@@ -48,26 +48,19 @@
 					return thickness;
 				}
 			).attr("stroke",function(d){
-				//TODO look up the node opening group and assign a colour accordingly  ;
 					return getECOColour(openings_tree.lookup[d.target.name].opening_groups);
+					return getECOColour(openings_tree.lookup[d.target.name].players);
 				}
 			)
 			.attr("d", link);
+	}
 
-		/*var node = vis.selectAll("g.node")
-			.data(nodes)
-			.enter().append("svg:g")
-			.attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
+	function getPlayerColour(players){
+		//if there's anand vs kramnik
+		//if there's anand and kramnik
+		//if there's just kramnik
+		//if there's just ananad
 
-		node.append("svg:circle")
-			.attr("r", 3.5);
-		node.append("svg:text")
-			.attr("dx", function(d) { return d.x < 180 ? 8 : -8; })
-			.attr("dy", ".31em")
-			.text(function(d) { return d.name.split("_")[1]; });*/
-
-		//node.append("svg:circle")
-		//	.attr("r", 4.5);
 	}
 
 	function getECOColour(ECO_codes){
