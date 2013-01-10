@@ -30,12 +30,12 @@ var move_tree = {
 	children:[]
 };
 
-var node_lookup = {
-
-}
+var node_lookup = {}
 
 var x_values = [];
 var width_at_move = [];
+
+util.puts("starting v2");
 
 for(var i = 0; i<openings.length;i++){
 	var game = new ch.Chess();
@@ -51,7 +51,6 @@ for(var i = 0; i<openings.length;i++){
 		var next_index = -1;
 		//get the index of the node with this move as its name
 		node_name = node_name + "_" + move;	 // TODO! SHOULD give us a unique and repeatable id
-		util.puts(node_name);
 		for(var c = 0; c < current_node.children.length; c++){
 			if(current_node.children[c].move == move){
 				next_index = c;
@@ -78,7 +77,6 @@ for(var i = 0; i<openings.length;i++){
 		current_node = current_node.children[next_index];
 		//update counts
 		node_lookup[node_name].weight ++;
-		console.log(node_lookup[node_name].weight);
 		node_lookup[node_name].opening_groups.push(openings[i].ECO[0]);
 		if(m == history.length-1){
 			node_lookup[node_name].opening_ending = openings[i].name + "(" +  openings[i].ECO + ")";
@@ -87,6 +85,11 @@ for(var i = 0; i<openings.length;i++){
 			util.puts("ERROR! current_node = " + current_node);
 		}
 	}
+}
+util.puts("hello!");
+//de duplicate all the opening group arrays
+for(var n in node_lookup){
+	node_lookup[n].opening_groups = uniqueArray(node_lookup[n].opening_groups);
 }
 
 var output_struct = {
@@ -103,9 +106,13 @@ out_file = fs.openSync('../generated_data/d3_openings_tree_extended.live.json', 
 	fs.writeSync(out_file, "var openings_tree = " + JSON.stringify(output_struct));
 	fs.closeSync(out_file);
 
-function addUnique(arr, value){ //add a value to an array if it doesn't exist in there already
-	if(arr.indexOf(value) < 0){
-		arr.push(value);
-	}
-	return arr;
+
+function uniqueArray(unordered) { //return a de-duplicated version of an array
+	var result = [];
+	var object = {};
+	unordered.forEach(function(item) {
+		object[item] = null;
+	});
+	result = Object.keys(object);
+	return result;
 }
