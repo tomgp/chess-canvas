@@ -66,3 +66,15 @@
 	.visualisation{
 		position: relative;
 	}
+	#key{
+		clear: both;
+		width: 400px;
+		margin-left: auto ;
+		margin-right: auto ;	
+	}
+	.key_item{
+		display: inline;
+		padding: 10px;
+		font-weight: bold;
+		margin-left: 10px;
+	}

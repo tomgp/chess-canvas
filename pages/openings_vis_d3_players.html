@@ -18,13 +18,20 @@
 
 	var linescale = 0.1;
 
+	var ECOcolours = {
+		A:{r:255,g:255,b:0},
+		B:{r:255,g:0,b:0},
+		C:{r:255,g:0,b:255},
+		D:{r:0,g:255,b:255},
+		E:{r:0,g:0,b:255}
+	};
 	function go(){
 		var mode = "all"
 		if(window.location.hash != ""){
 			mode = window.location.hash.substring(1);
 		}
-		console.log(mode);
 		draw(mode); //Kramnik, Anand, Kramnic_and_Anand, Kramnik_vs_Anand
+		drawKey("#key");
 	}
 
 	function draw(draw_option){
@@ -36,9 +43,6 @@
 
 		var tree = d3.layout.tree()
 			.size([1000,1000]);
-
-/*		var link = d3.svg.diagonal()
-			.projection( function(d){ return [d.x, 1000 - d.y]; } );*/
 
 		var link = d3.svg.diagonal.radial()
 			.projection(function(d) { 
@@ -56,7 +60,7 @@
 					return thickness;
 				})
 			.attr("stroke",function(d){
-					return getPlayerColour(openings_tree.lookup[d.target.name].players, draw_option);
+					return getPlayerColour(openings_tree.lookup[d.target.name], draw_option);
 				})
 			.attr("stroke-opacity",function(d){ 
 					return getOpacity(openings_tree.lookup[d.target.name].players, draw_option);
@@ -66,7 +70,7 @@
 				d3.select(".tooltip").style("visibility","visible");
 			})
 			.on("mousemove", function(d){
-				d3.select(".tooltip").style("top", (event.pageY+10)+"px").style("left",(event.pageX+10)+"px")
+				d3.select(".tooltip").style("top", (event.pageY-200)+"px").style("left",(event.pageX+10)+"px")
 					.html(getTipText(d));
 			})
 			.on("mouseout", function(d){
@@ -80,11 +84,16 @@
 		return('<pre>' + c.ascii() + '</pre><p>' + openings_tree.lookup[d.target.name].opening_groups + '</p><p>'+openings_tree.lookup[d.target.name].opening_ending+'</p>')
 	}
 
-	function getPlayerColour(players, draw_option){
+	function getPlayerColour(d, draw_option){
+		var players = d.players;
+		var groups  = d.opening_groups;
 		if(players){
 			if(players[draw_option]){
-				return "#DDDDDD";
+				return getECOColour(groups);
 			}
+		}
+		if(draw_option == "all"){
+			return getECOColour(groups);
 		}
 		return "#666666";
 	}
@@ -95,21 +104,49 @@
 				return 1;
 			}
 		}
+		if(draw_option == "all"){
+			return 1;
+		}
 		return 0.5;
 	}
 
-	function getECOColour(ECO_codes){
-		console.log(ECO_codes);
-		colours = {
-			A:"#FF85FF",
-			B:"#0096FF",
-			C:"#8EFA00",
-			D:"#FF9300",
-			E:"#531B93"
+	function getECOColour(groups){
+		//blend the colours
+		//average r, g and b
+		var r, g, b;
+		r=g=b=0;
+		var i;
+		for (i = 0; i < groups.length; i++){
+			var c = ECOcolours[groups[i]]
+			r += c.r;
+			g += c.g;
+			b += c.b;
 		}
-		return colours[ECO_codes[0]];
+		r = r/i;
+		g = g/i;
+		b = b/i;
+		return RGB2Hex(r,g,b);
 	}
 
+	function RGB2Hex(r,g,b){
+		return '#' + byte2Hex(r) + byte2Hex(g) + byte2Hex(b);
+	}
+
+	function byte2Hex(n){
+		var nybHexString = "0123456789ABCDEF";
+		return String(nybHexString.substr((n >> 4) & 0x0F,1)) + nybHexString.substr(n & 0x0F,1);
+	}
+
+	function drawKey(key_parent){
+		var key = document.querySelector(key_parent);
+		key_html = "ECO group ";
+		for(var group in ECOcolours){
+			var c = ECOcolours[group];
+			var hex = RGB2Hex (c.r,c.g,c.b);
+			key_html += "<div class='key_item' style='background-color:" + hex + "'>" + group + "</div>"
+		}
+		key.innerHTML = key_html;
+	}
 
 	</script>
 	<style type="text/css">
@@ -139,11 +176,9 @@
 <div class='tooltip'>
 	tooltip
 </div>
-<div id="options"></div>
-<div id="extra">
-</div>
 <div class="visualisation" id="d3_viz">
 </div>
+<div id="key"></div>
 
 
 </body>

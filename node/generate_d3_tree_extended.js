@@ -114,5 +114,6 @@ function uniqueArray(unordered) { //return a de-duplicated version of an array
 		object[item] = null;
 	});
 	result = Object.keys(object);
-	return result;
+
+	return result.sort();
 }
