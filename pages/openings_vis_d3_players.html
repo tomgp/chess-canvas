@@ -61,7 +61,23 @@
 			.attr("stroke-opacity",function(d){ 
 					return getOpacity(openings_tree.lookup[d.target.name].players, draw_option);
 				})
-			.attr("d", link);
+			.attr("d", link)
+			.on("mouseover", function(d){
+				d3.select(".tooltip").style("visibility","visible");
+			})
+			.on("mousemove", function(d){
+				d3.select(".tooltip").style("top", (event.pageY+10)+"px").style("left",(event.pageX+10)+"px")
+					.html(getTipText(d));
+			})
+			.on("mouseout", function(d){
+				d3.select(".tooltip").style("visibility", "hidden");
+			});
+	}
+
+	function getTipText(d){
+		var fen = openings_tree.lookup[d.target.name].fen
+		var c = new Chess(openings_tree.lookup[d.target.name].fen)
+		return('<pre>' + c.ascii() + '</pre><p>' + openings_tree.lookup[d.target.name].opening_groups + '</p><p>'+openings_tree.lookup[d.target.name].opening_ending+'</p>')
 	}
 
 	function getPlayerColour(players, draw_option){
@@ -119,6 +135,9 @@
 <div class="description">
 <p><b>Chess openings</b> </p>
 <div class="description">a tree diagram showing the ~2500 recognised openings and how they're related</div>
+</div>
+<div class='tooltip'>
+	tooltip
 </div>
 <div id="options"></div>
 <div id="extra">
