@@ -32,6 +32,9 @@ E - DB8F40
 		D:{r:145,g:102,b:171},
 		E:{r:219,g:143,b:64}
 	};
+
+	var last_node="";
+
 	function go(){
 		var mode = "all"
 		if(window.location.hash != ""){
@@ -56,15 +59,6 @@ E - DB8F40
 				return [d.y, (d.x-500)/400]; });
 		
 		var nodes = tree.nodes(openings_tree.tree);
-		//console.log(nodes); 
-
-		/*
-	svg.selectAll("path.link")
-    .data(cluster.links(nodes))
-  .enter().append("path")
-    .attr("class", "link")
-    .attr("d", elbow);
-		*/
 
 		var link = vis.selectAll("pathlink")
 			.data(tree.links(nodes))
@@ -112,22 +106,32 @@ E - DB8F40
 	}
 
 	function setInfoPanel(node){
-		console.log(node);
+		if(last_node != ""){
+			var back_link = "<a href='javascript:setInfoPanel(\""+ last_node +"\")' >back</a>"
+		}else{
+			back_link = "";
+		}
+		unHighlightPath(last_node);
+		last_node = node;
 		var fen = openings_tree.lookup[node].fen
 		var c = new Chess(openings_tree.lookup[node].fen)
-		document.getElementById('info').innerHTML = '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p>'+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
+		document.getElementById('info_content').innerHTML = back_link + '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p> This move ends '+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
 		highlightPath(node);
 	}
 
 	function highlightPath(node){
+		d3.selectAll('path[node_name="'+node+'"]').classed("line_highlight", true);
+	}
 
+	function unHighlightPath(node){
+		d3.selectAll('path[node_name="'+node+'"]').classed("line_highlight", false);	
 	}
 
 	function formatGameList(games, node){
 		var list = "<ul>"
 		for(var i in games){
-			var jsString= 'javascript:setInfoPanel("'+node+'_'+ games[i].next_move +'"")'
-			list += "<li>" + games[i].game + "<br>" + " &raquo; <a href="+jsString+">" + games[i].next_move + "</a></li>";
+			var next_node = node + "_" + games[i].next_move;
+			list += "<li>" + games[i].game + "<br>" + " &raquo; <a href='javascript:setInfoPanel(\""+ next_node +"\")' >" + games[i].next_move + "</a></li>";
 		}
 		list+="</li>"
 		return list;
@@ -220,7 +224,7 @@ E - DB8F40
 <h1>Chess openings</h1>
 <div class="description">
 <p><b>Chess openings</b> </p>
-<div class="info_panel" id="info">a tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</div>
+<div class="info_panel" id="info"><div id="info_content">a tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</div></div>
 </div>
 <div class='tooltip'>
 	tooltip

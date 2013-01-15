@@ -47,6 +47,10 @@
 		fill:#f00;
 	}
 
+	.line_highlight{
+		stroke:#f00;
+	}
+
 	.player_name{
 		display: inline-block;
 		text-align: right;
@@ -75,6 +79,11 @@
 		width:400px;
 		z-index: 100;
 		background-color: #FFF;
+	}
+
+	#info_content{
+		height: 500px;
+		overflow-y: scroll;
 	}
 
 	li{
