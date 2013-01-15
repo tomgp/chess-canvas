@@ -63,6 +63,23 @@
 		visibility: hidden;
 		background-color: #FFF;
 	}
+
+	.info_panel{
+		padding: 10px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: 333;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width:400px;
+		z-index: 100;
+		background-color: #FFF;
+	}
+
+	li{
+		font-size: 10px;
+	}
 	.visualisation{
 		position: relative;
 	}

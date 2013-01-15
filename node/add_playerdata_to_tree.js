@@ -2,6 +2,7 @@
 var util = require('util');
 var fs = require('fs');
 var ch = require('/Users/tompearson/Sites/vendor/chess.js');
+var crypto = require('crypto');
 
 var players = [
 	{name:"Anand",data:'../pgn/Anand.pgn'},
@@ -14,13 +15,17 @@ var tree_data = JSON.parse(fs.readFileSync(tree_data_file,'utf8'));
 util.puts("got tree data");
 
 //for each player, load up that players games
-for(p in players){		
-	var game_data = pgnToGames( getPGNList(players[p].data) );
+for(var p in players){		
+	util.puts("player " + p)
+	var pgn_list = getPGNList(players[p].data);
+	var game_data = pgnToGames( pgn_list );
 	util.puts("got game data for " + players[p].name);
 	var report = "";
-	for(g in game_data){	//for each game
+	for(var g in game_data){	//for each game
 		report += ("\n\tgame " + g + ": ");
-		var moves = game_data[g].history();
+		var moves = game_data[g].game.history();
+		var meta_data = game_data[g].meta_data;
+		report += meta_data.description + " ";
 		var recognised_opening = true;
 		var move = 0;
 		var node_name = "";
@@ -34,14 +39,25 @@ for(p in players){
 				if(!tree_data.lookup[node_name].players[players[p].name]){
 					tree_data.lookup[node_name].players[players[p].name] = 0;
 				}
+				if(!tree_data.lookup[node_name].games){
+					tree_data.lookup[node_name].games = [];
+				}
+
 				tree_data.lookup[node_name].players[players[p].name] += 1;
+				
 				recognised_opening = true;
+				var last_move = moves[move];
 				move++;
+				tree_data.lookup[node_name].games.push({
+					game:meta_data.description,
+					next_move:moves[move],
+					last_move:last_move
+				});
 			}
 		}
 		report += move + " opening moves";
-		util.puts(report);
 	}
+	util.puts(report);
 }
 
 //re-save the tree data  
@@ -65,9 +81,37 @@ function getPGNList(file_name){
 function pgnToGames(game_list){
 	var games = [];
 	for (var i =0; i<game_list.length; i++){
+		var game = {};
 		var c = new ch.Chess();
 		c.load_pgn(game_list[i]);
-		games.push(c);
+		var meta_data = getMetaData(game_list[i])
+		game.game = c;
+		game.meta_data = meta_data;
+		games.push(game);
 	}
 	return games;
+}
+
+function getMetaData(pgn){
+	var data = {};
+	var lines = pgn.split(/\n/); 		//go through the lines of the PGN string
+	for (var i = 0; i<lines.length ; i++){
+		//grab everything that is enclosed by [] on each line
+		var meta_regex = /\[(\w+) "(.+)"\]/g;
+		var matches = meta_regex.exec(lines[i]);
+		if(matches){
+			data[matches[1]] = matches[2];
+		}
+	}
+	data.description = data.White + "(W) vs " + data.Black + "(B). " + data.Date + " " + data.Event + " round "+data.Round+". " + getResultDescription(data.Result);
+	return data;
+}
+
+function getResultDescription(r){
+	if (r=="1-0"){
+		return "White win";
+	}if (r=="0-1"){
+		return "Black win";
+	}
+	return "Drawn game";
 }

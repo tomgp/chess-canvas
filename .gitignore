@@ -10,3 +10,19 @@ generated_data/d3_openings_tree_extended.7z
 pgn/Anand.zip
 
 .idea/.name
+
+node/node_modules/crypto/.md5.js.un~
+
+*.un~
+
+node/node_modules/crypto/History.md
+
+node/node_modules/crypto/Readme.md
+
+node/node_modules/crypto/md5.js
+
+node/node_modules/crypto/package.json
+
+node/node_modules/crypto/sha1.js
+
+node/node_modules/crypto/test/test-crypto.js

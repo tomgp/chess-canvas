@@ -24,6 +24,7 @@ C- 5FBC57
 D - 9166AB
 E - DB8F40
 */
+
 	var ECOcolours = {
 		A:{r:255,g:96,b:96}, 
 		B:{r:0,g:174,b:239},
@@ -67,30 +68,37 @@ E - DB8F40
 
 		var link = vis.selectAll("pathlink")
 			.data(tree.links(nodes))
-			.enter().append("svg:path")
-			.attr("class", "link")
-			.attr("stroke-width",function(d){
-					//TODO look up the node weight and assign a thicness accordingly  ;
-					var thickness = Math.log(openings_tree.lookup[d.target.name].weight);
-					return thickness;
+			.enter()
+			.append("svg:path")
+				.attr("class", "link")
+				.attr("stroke-width",function(d){
+						//TODO look up the node weight and assign a thicness accordingly  ;
+						var thickness = Math.log(openings_tree.lookup[d.target.name].weight);
+						return thickness;
+					})
+				.attr("stroke",function(d){
+						return getPlayerColour(openings_tree.lookup[d.target.name], draw_option);
+					})
+				.attr("stroke-opacity",function(d){ 
+						return getOpacity(openings_tree.lookup[d.target.name].players, draw_option);
+					})
+				.attr("node_name", function(d){
+					return d.target.name;
 				})
-			.attr("stroke",function(d){
-					return getPlayerColour(openings_tree.lookup[d.target.name], draw_option);
+				.attr("d", link)
+				.on("mouseover", function(d){
+					d3.select(".tooltip").style("visibility","visible");
 				})
-			.attr("stroke-opacity",function(d){ 
-					return getOpacity(openings_tree.lookup[d.target.name].players, draw_option);
+				.on("mousemove", function(d){
+					d3.select(".tooltip").style("top", (event.pageY-200)+"px").style("left",(event.pageX+10)+"px")
+						.html(getTipText(d));
 				})
-			.attr("d", link)
-			.on("mouseover", function(d){
-				d3.select(".tooltip").style("visibility","visible");
-			})
-			.on("mousemove", function(d){
-				d3.select(".tooltip").style("top", (event.pageY-200)+"px").style("left",(event.pageX+10)+"px")
-					.html(getTipText(d));
-			})
-			.on("mouseout", function(d){
-				d3.select(".tooltip").style("visibility", "hidden");
-			});
+				.on("mouseout", function(d){
+					d3.select(".tooltip").style("visibility", "hidden");
+				})
+				.on("mouseup", function(d){
+					setInfoPanel(d.target.name);
+				});
 	}
 
 	function elbow(d, i) {
@@ -100,7 +108,29 @@ E - DB8F40
 	function getTipText(d){
 		var fen = openings_tree.lookup[d.target.name].fen
 		var c = new Chess(openings_tree.lookup[d.target.name].fen)
-		return('<pre>' + c.ascii() + '</pre><p>' + openings_tree.lookup[d.target.name].opening_groups + '</p><p>'+openings_tree.lookup[d.target.name].opening_ending+'</p>')
+		return('<pre>' + c.ascii() + '</pre>')
+	}
+
+	function setInfoPanel(node){
+		console.log(node);
+		var fen = openings_tree.lookup[node].fen
+		var c = new Chess(openings_tree.lookup[node].fen)
+		document.getElementById('info').innerHTML = '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p>'+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
+		highlightPath(node);
+	}
+
+	function highlightPath(node){
+
+	}
+
+	function formatGameList(games, node){
+		var list = "<ul>"
+		for(var i in games){
+			var jsString= 'javascript:setInfoPanel("'+node+'_'+ games[i].next_move +'"")'
+			list += "<li>" + games[i].game + "<br>" + " &raquo; <a href="+jsString+">" + games[i].next_move + "</a></li>";
+		}
+		list+="</li>"
+		return list;
 	}
 
 	function getPlayerColour(d, draw_option){
@@ -190,7 +220,7 @@ E - DB8F40
 <h1>Chess openings</h1>
 <div class="description">
 <p><b>Chess openings</b> </p>
-<div class="description">a tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</div>
+<div class="info_panel" id="info">a tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</div>
 </div>
 <div class='tooltip'>
 	tooltip
