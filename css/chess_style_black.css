@@ -1,0 +1,105 @@
+	body{
+		background-color: #000;
+		font-family: sans-serif;
+		color: #aaa;
+	}
+
+	a{
+		color: #000;
+	}
+
+	a:hover{
+		background-color: #FFF;
+		color: #F00;
+	}
+
+	svg{
+		vertical-align: top;
+		padding: 10px;
+	}
+
+	.black{
+		stroke:#FFF;
+		stroke-width:0;
+		fill:#000;
+		shape-rendering: crispEdges;
+	}
+
+	.description{
+		max-width: 500px;
+		padding: 20px;
+	}
+
+	.white{
+		stroke:#000;
+		stroke-width:0;
+		fill:#FFF;	
+		shape-rendering: crispEdges;
+	}
+
+	.both{
+		stroke:#fff;
+		stroke-width:1;
+		fill:#999;	
+		shape-rendering: crispEdges;
+	}
+
+	.highlight{
+		fill:#f00;
+	}
+
+	.line_highlight{
+		stroke:#f00;
+	}
+
+	.player_name{
+		display: inline-block;
+		text-align: right;
+		font-size: 0.7rem;
+	}
+
+	.tooltip{
+		padding: 10px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: #333;
+		position: absolute;
+		z-index: 100;
+		visibility: hidden;
+	}
+
+	.info_panel{
+		padding: 10px;
+		border-width: 1px;
+		border-style: solid;
+		border-color: 333;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width:400px;
+		z-index: 100;
+	}
+
+	#info_content{
+		height: 500px;
+		overflow-y: auto;
+	}
+
+	li{
+		font-size: 10px;
+	}
+	.visualisation{
+		position: relative;
+	}
+	#key{
+		clear: both;
+		width: 400px;
+		margin-left: auto ;
+		margin-right: auto ;	
+	}
+	.key_item{
+		display: inline;
+		padding: 10px;
+		font-weight: bold;
+		margin-left: 10px;
+	}

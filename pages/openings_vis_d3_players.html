@@ -2,7 +2,7 @@
 <html>
 <head>
 	<title>Chess openings</title>
-	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<link rel="stylesheet" type="text/css" href="/css/chess_style_black.css">
 	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
 	<script type="text/javascript" src="/js/vendor/chess.js"></script>
 	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
@@ -128,7 +128,17 @@ E - DB8F40
 	}
 
 	function formatGameList(games, node){
-		var list = "<ul>"
+		var lists = {};
+		//partition array by move
+		for(var i in games){
+			if(!lists[games[i].next_move]){
+				lists[games[i].next_move] = [];
+			}
+			lists[games[i].next_move].push(games[i].game);
+		}
+		console.log(lists);
+		//sort the list by move
+		var list = "<ul>";
 		for(var i in games){
 			var next_node = node + "_" + games[i].next_move;
 			list += "<li>" + games[i].game + "<br>" + " &raquo; <a href='javascript:setInfoPanel(\""+ next_node +"\")' >" + games[i].next_move + "</a></li>";
@@ -148,7 +158,7 @@ E - DB8F40
 		if(draw_option == "all"){
 			return getECOColour(groups);
 		}
-		return "#666666";
+		return "#aaa";
 	}
 
 	function getOpacity(players, draw_option){
