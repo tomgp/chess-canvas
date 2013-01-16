@@ -5,9 +5,10 @@ var ch = require('/Users/tompearson/Sites/vendor/chess.js');
 var crypto = require('crypto');
 
 var players = [
-	{name:"Anand",data:'../pgn/Anand.pgn'},
+	{name:"Anand",data:'../pgn/Anand.pgn'}/*,
 	{name:"Kramnik",data:'../pgn/Kramnik.pgn'},
-	{name:"Anand_Kramnik",data:'../pgn/Anand_Kramnik.pgn'}];
+	{name:"Anand_Kramnik",data:'../pgn/Anand_Kramnik.pgn'}*/
+];
 var tree_data_file = '../generated_data/d3_openings_tree_extended.json';
 
 //open the tree and parse
@@ -49,7 +50,7 @@ for(var p in players){
 				var last_move = moves[move];
 				move++;
 				tree_data.lookup[node_name].games.push({
-					game:meta_data.description,
+					game:meta_data,
 					next_move:moves[move],
 					last_move:last_move
 				});
