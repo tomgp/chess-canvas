@@ -29,6 +29,8 @@ This script takes the tree created by the previous script and adds real game dat
 
 to save space and normalise things the game meta data is stored in a secondary look up table
 
+this script takes about 50 seconds to add 3000 games
+
 __Results:__ 
 
 current visualisation at: http://chess.pointlineplane.co.uk/pages/openings_vis_d3_players_filtered.html
