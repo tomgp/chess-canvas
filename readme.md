@@ -1,9 +1,11 @@
 ___Chess data investigation & visualisation prototyping___
 
 __Aim:__ 
+
 To investigate ways to display large amounts of chess data. 
 
 __Process:__ 
+
 Read a set of PGN files, parse and analyse the data therein. Create a set of json files to power various visualisations.
 
 The important scripts are:
@@ -37,11 +39,13 @@ current visualisation at: http://chess.pointlineplane.co.uk/pages/openings_vis_d
 
 
 ___Data sources___
+
 pgn files are originally from
 http://www.pgnmentor.com/files.html
 some of them have been tweaked to fix formatting problems
 
 ___Dependencies___
+
 jhlya's chess-js is used extensively
 https://github.com/jhlywa/chess.js
 
