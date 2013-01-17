@@ -9,8 +9,10 @@ __Process:__
 Read a set of PGN files, parse and analyse the data therein. Create a set of json files to power various visualisations.
 
 The important scripts are:
-_ node/generate_d3_tree_extended.js _
-which takes a list of ECO openings and steps through each move by move building up a move tree in the standard d3 format
+
+_node/generate_d3_tree_extended.js_
+
+This takes a list of ECO openings and steps through each move by move building up a move tree in the standard d3 format
 	{
 		"name":"_e4_c5_Bc4",	//the node name is a string of moves joined by underscores
 		"move":"Bc4",			//the 'move' property is a convenience navigate the tree
@@ -25,7 +27,7 @@ a lookup containing meta_data is created where meta data for agiven position is 
 
 over the 2500~ openings this takes between 5s and 10s to run
 
-_ node/add_player_data_to_tree.js _
+_node/add_player_data_to_tree.js_
 
 This script takes the tree created by the previous script and adds real game data from lists of PGNs, this data includes infomation such as which players have played which moves at each point in the tree, whether those games were won and lost etc.
 
