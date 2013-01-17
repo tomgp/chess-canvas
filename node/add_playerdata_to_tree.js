@@ -10,9 +10,10 @@ var players = [
 	{name:"Anand_Kramnik",data:'../pgn/Anand_Kramnik.pgn'}*/
 ];
 var tree_data_file = '../generated_data/d3_openings_tree_extended.json';
-
+var game_num = 0;
 //open the tree and parse
 var tree_data = JSON.parse(fs.readFileSync(tree_data_file,'utf8'));
+tree_data.games = [];
 util.puts("got tree data");
 
 //for each player, load up that players games
@@ -50,13 +51,14 @@ for(var p in players){
 				var last_move = moves[move];
 				move++;
 				tree_data.lookup[node_name].games.push({
-					game:meta_data,
+					game_id:game_num,
 					next_move:moves[move],
-					last_move:last_move
 				});
 			}
 		}
 		report += move + " opening moves";
+		tree_data.games[game_num] = meta_data;
+		game_num ++;
 	}
 	util.puts(report);
 }
@@ -104,8 +106,13 @@ function getMetaData(pgn){
 			data[matches[1]] = matches[2];
 		}
 	}
-	data.description = data.White + "(W) vs " + data.Black + "(B). " + data.Date + " " + data.Event + " round "+data.Round+". " + getResultDescription(data.Result);
-	return data;
+	var return_data = {}
+	return_data.players = {'black':{'name':data.White,'elo':data.WhiteElo}, 'white':{'name':data.Black,'elo':data.BlackElo}};
+	return_data.event = data.Event + " (round "+data.Round+")";
+	return_data.year = String(data.Date).split(".")[0];
+	return_data.result = data.Result;
+
+	return return_data;
 }
 
 function getResultDescription(r){

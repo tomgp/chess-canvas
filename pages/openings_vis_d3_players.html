@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html>
 <head>
 	<title>Chess openings</title>
-	<link rel="stylesheet" type="text/css" href="/css/chess_style_black.css">
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
 	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
 	<script type="text/javascript" src="/js/vendor/chess.js"></script>
 	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
@@ -80,6 +81,16 @@ E - DB8F40
 					return d.target.name;
 				})
 				.attr("d", link)
+				.on("mouseover", function(d){
+					d3.select(".tooltip").style("visibility","visible");
+				})
+				.on("mousemove", function(d){
+					d3.select(".tooltip").style("top", (event.pageY-200)+"px").style("left",(event.pageX+10)+"px")
+						.html(getTipText(d));
+				})
+				.on("mouseout", function(d){
+					d3.select(".tooltip").style("visibility", "hidden");
+				})
 				.on("mouseup", function(d){
 					setInfoPanel(d.target.name);
 				});
@@ -96,29 +107,17 @@ E - DB8F40
 	}
 
 	function setInfoPanel(node){
-		document.getElementById('nav').innerHTML = buildCrumbTrail(node);
+		if(last_node != ""){
+			var back_link = "<a href='javascript:setInfoPanel(\""+ last_node +"\")' >back</a>"
+		}else{
+			back_link = "";
+		}
 		unHighlightPath(last_node);
 		last_node = node;
-		if(openings_tree.lookup[node]){
-			var fen = openings_tree.lookup[node].fen
-			var c = new Chess(openings_tree.lookup[node].fen)
-			document.getElementById('info_content').innerHTML = '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p> This move ends '+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
-			highlightPath(node);
-		}
-	}
-
-	function buildCrumbTrail(node){
-		//split the node name into moves array
-		var moves = node.split("_");
-		moves.shift();
-		console.log(moves);
-		html_string = "moves: ";
-		var current_node = ""
-		for(var i = 0; i < moves.length; i++){
-			current_node = current_node + "_" + moves[i];
-			html_string += "<a href='javascript:setInfoPanel(\""+ current_node +"\")' >"+moves[i]+"</a> "
-		}
-		return html_string;
+		var fen = openings_tree.lookup[node].fen
+		var c = new Chess(openings_tree.lookup[node].fen)
+		document.getElementById('info_content').innerHTML = back_link + '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p> This move ends '+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
+		highlightPath(node);
 	}
 
 	function highlightPath(node){
@@ -127,10 +126,6 @@ E - DB8F40
 
 	function unHighlightPath(node){
 		d3.selectAll('path[node_name="'+node+'"]').classed("line_highlight", false);	
-	}
-
-	function highlightSelection(selector){
-
 	}
 
 	function formatGameList(games, node){
@@ -143,17 +138,6 @@ E - DB8F40
 			lists[games[i].next_move].push(games[i].game);
 		}
 		console.log(lists);
-		var html_string = "<p>";
-		for(var move in lists){
-			var move_pct = Math.round((lists[move].length / games.length) * 100);
-			html_string += "<strong>" + move + "</strong>" + move_pct + "%";
-			html_string += "<ul>";
-			for(var g = 0; g < lists[move].length; g++){
-
-			}
-			html_string += "</ul>";
-		}
-		html_string += "<p>";
 		//sort the list by move
 		var list = "<ul>";
 		for(var i in games){
@@ -175,7 +159,7 @@ E - DB8F40
 		if(draw_option == "all"){
 			return getECOColour(groups);
 		}
-		return "#aaa";
+		return "#666666";
 	}
 
 	function getOpacity(players, draw_option){
@@ -230,20 +214,35 @@ E - DB8F40
 
 	</script>
 	<style type="text/css">
-		
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
 		.link {
 			fill: none;
+			//stroke: #000;
+			//stroke-width: 1px;
 		}
+
+
 	</style>
 </head>
 <body onLoad="go()">
-<div class="info_panel" id="info"><div id="nav">[nav]</div><div id="key"></div><div id="info_content">a tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</div></div>
+<h1>Chess openings</h1>
+<div class="description">
+<p><b>Chess openings</b> </p>
+<div class="info_panel" id="info"><div id="info_content">a tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</div></div>
 </div>
 <div class='tooltip'>
 	tooltip
 </div>
 <div class="visualisation" id="d3_viz">
 </div>
+<div id="key"></div>
 
 
 </body>

@@ -21,6 +21,8 @@ var fs = require('fs');
 var ch = require('/Users/tompearson/Sites/vendor/chess.js');
 var d3 = require('d3');
 
+var start_time = new Date().valueOf()/1000;
+
 var openings_spreadsheet = '../pgn/chess_openings_adjusted.csv';
 var openings_text = fs.readFileSync(openings_spreadsheet,'utf8');
 var openings = d3.csv.parse(openings_text);
@@ -35,22 +37,19 @@ var node_lookup = {}
 var x_values = [];
 var width_at_move = [];
 
-util.puts("starting v2");
+util.puts("starting v2 (t:"+start_time+")");
 
 for(var i = 0; i<openings.length;i++){
 	var game = new ch.Chess();
-	util.puts(openings[i].name)
 	game.load_pgn(openings[i].moves);
 	var history = game.history();
 	var current_node = move_tree;
-	game.reset();
 	var node_name = "";
 	for(var m = 0; m<history.length; m++){
 		var move = history[m];
-		game.move(move);
 		var next_index = -1;
 		//get the index of the node with this move as its name
-		node_name = node_name + "_" + move;	 // TODO! SHOULD give us a unique and repeatable id
+		node_name = node_name + "_" + move;	 // SHOULD give us a unique and repeatable id
 		for(var c = 0; c < current_node.children.length; c++){
 			if(current_node.children[c].move == move){
 				next_index = c;
@@ -68,7 +67,6 @@ for(var i = 0; i<openings.length;i++){
 		if(!node_lookup[node_name]){
 			node_lookup[node_name] = {
 				weight:0,
-				fen:game.fen(),
 				opening_groups:[],
 				opening_ending:""
 			};
@@ -86,7 +84,7 @@ for(var i = 0; i<openings.length;i++){
 		}
 	}
 }
-util.puts("hello!");
+
 //de duplicate all the opening group arrays
 for(var n in node_lookup){
 	node_lookup[n].opening_groups = uniqueArray(node_lookup[n].opening_groups);
@@ -105,6 +103,11 @@ var out_file = fs.openSync('../generated_data/d3_openings_tree_extended.json', '
 out_file = fs.openSync('../generated_data/d3_openings_tree_extended.live.json', 'w');
 	fs.writeSync(out_file, "var openings_tree = " + JSON.stringify(output_struct));
 	fs.closeSync(out_file);
+
+var stop_time = new Date().valueOf()/1000;
+util.puts("stopping (t:"+stop_time +")");
+var ex_time = stop_time - start_time
+util.puts("done in " + ex_time + " s");
 
 
 function uniqueArray(unordered) { //return a de-duplicated version of an array

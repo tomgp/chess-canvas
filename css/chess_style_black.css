@@ -54,6 +54,9 @@
 	.line_highlight{
 		stroke:#f00;
 	}
+	.branch_highlight{
+		stroke:#FFF;
+	}
 
 	.player_name{
 		display: inline-block;
@@ -81,6 +84,7 @@
 		left: 0;
 		width:400px;
 		z-index: 100;
+		background-color:rgba(0,0,0,0.5);
 	}
 
 
@@ -88,7 +92,6 @@
 	#info_content{
 		height: 500px;
 		overflow-y: auto;
-	
 	}
 
 	#info_content::-webkit-scrollbar {
@@ -100,15 +103,12 @@
 	    -webkit-border-radius: 1ex;
 	}
 
-	li{
-		font-size: 10px;
-	}
 	.visualisation{
 		position: relative;
 	}
 	#key{
 		position: relative;
-		padding: 20px;
+		padding: 10px;
 	}
 	.key_item{
 		color: #000;

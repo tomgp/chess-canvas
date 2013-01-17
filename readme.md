@@ -2,7 +2,7 @@ ___Chess data investigation & visualisation prototyping___
 
 Aim: To investigate ways to display large amounts of chess data. 
 
-Process:
+Process: Read a set of PGN files, parse and analyse the data therein. Create a set of json files to power variosu visualisations
 
 
 ___Data sources___
