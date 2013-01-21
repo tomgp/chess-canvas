@@ -4,9 +4,6 @@
 		color: #aaa;
 	}
 
-
-
-
 	a{
 		color: #FFF;
 	}
@@ -14,6 +11,18 @@
 	a:hover{
 		background-color: #FFF;
 		color: #F00;
+	}
+
+	.filter-result{
+		color: #FFF;
+	}
+
+	a.selected_filter{
+		background-color: #A00;
+	}
+
+	a.filter-off{
+		background-color: #330;
 	}
 
 	svg{

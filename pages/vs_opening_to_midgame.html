@@ -25,29 +25,17 @@
 
 //A filter object looks like this
 /*
-{	min_elo:
+{	
+	winner:
+	min_elo:
 	result:
 	years:[]
 	white:""
 	black:""}
 */
 	var current_filter_result = [];		//the results of the current filter
-	var current_filter_object = {result:"1-0"};
-
-
-	var filter_options = {
-		white:["All", "Kramnik", "Anand"],
-		black:["All", "Kramnik", "Anand"], 
-		elo:["No min","2500"], 
-		year:(function(){
-				var year_collection = {};
-				for (var i in openings_tree.games){
-					year_collection[openings_tree.games[i].year] = 1;
-				}
-				console.log()
-				return Object.keys(year_collection);
-			})(),
-		result:["All", "1-0", "0-1", "1/2-1/2"]};
+	var current_filter_object = {};
+	var players = ["Anand","Kramnik"];
 //end of global stuff
 
 	function go(){
@@ -56,12 +44,55 @@
 			mode = window.location.hash.substring(1);
 		}
 		draw(); 
-		drawKey("#key");
 		addFilterControl();
 	}
 
 	function addFilterControl(){
-		document.getElementById("filter_controls")
+		for (var i=0; i<players.length; i++){
+			var name = players[i];
+			(function(name){
+				document.getElementById("filter-"+name+"-Win").onclick = function(){
+					current_filter_object.winner = name;
+					this.className = "selected_filter";
+		    		filter();
+		    		return false;
+				}
+				document.getElementById("filter-"+name+"-White").onclick = function(){
+		    		current_filter_object.white = name;
+		    		this.className = "selected_filter";
+		    		filter();
+		    		return false;
+				}
+			})(name);
+		}
+	
+		document.getElementById("filter-White-win").onclick = function(){
+    		current_filter_object.result = "1-0";
+    		this.className = "selected_filter";
+    		filter();
+    		return false;
+		}
+		document.getElementById("filter-Black-win").onclick = function(){
+    		current_filter_object.result = "0-1";
+    		this.className = "selected_filter";
+    		filter();
+    		return false;
+		}
+		document.getElementById("filter-draw").onclick = function(){
+    		current_filter_object.result = "1/2-1/2";
+    		this.className = "selected_filter";
+    		filter();
+    		return false;
+		} 
+		document.getElementById("filter-clear").onclick = function(){
+			var filter_links = document.querySelectorAll("a[id*='filter']");
+			for(var i = 0; i<filter_links.length; i++){
+					filter_links[i].className = "";
+			}
+    		current_filter_object = {};
+    		filter();
+    		return false;
+		}
 	}
 
 
@@ -132,7 +163,7 @@
 		//split the node name into moves array
 		var moves = node.split("_");
 		moves.shift();
-		html_string = "Move: ";
+		html_string = "<p>Path: ";
 		var current_node = ""
 		for(var i = 0; i < moves.length; i++){
 			current_node = current_node + "_" + moves[i];
@@ -152,11 +183,10 @@
 
 
 	function filter(){
-		var off_colour = "#f00";
+		var off_colour = "#400";
 		var on_colour = "#FFF";
 		filter_object = current_filter_object;
 		current_filter_result = [];
-		var acc=0;
 		d3.selectAll("path.link")
 			.attr("stroke", function(d){
 				var game_list = d.source.games;
@@ -165,24 +195,35 @@
 				}
 				for(var i=0; i<game_list.length; i++){
 					var game = openings_tree.games[game_list[i]];
-					if(current_filter_result[ game_list[i] ]==undefined){
+					if(current_filter_result[ game_list[i] ] == undefined){
 						current_filter_result[ game_list[i] ] = gameFilter(game, filter_object);
-						acc++;
-						console.log(acc)
 					}
-					if(current_filter_result[game_list[i].game_id]){
+					if(current_filter_result[game_list[i]]){
 						return on_colour;	//if any of the games meet the filter critera return true 
 					}
 				}
 				return off_colour;
 			});
+		describeFilterResult();
+	}
+
+	function describeFilterResult(){
+		var acc=0;
+		for(var i = 0; i<current_filter_result.length; i++){
+			if(current_filter_result[i]){
+				acc++;
+			}
+		}
+
+		document.getElementById('filter_result').innerHTML = "<p>Filter result: <span class='filter-result'>" + acc + "/" + current_filter_result.length + " games </span>";
 	}
 
 	function gameFilter(game, filter_object){
-		console.log(game.meta_data.Result);
 		if(!filter_object){
 			return true
 		}
+		if(!winnerFilter(filter_object.winner, game.meta_data.White, game.meta_data.Black, game.meta_data.Result)){
+			return false;}
 		if(!containsFilter(game.meta_data.White, filter_object.white)){
 			return false;}
 		if(!containsFilter(game.meta_data.Black, filter_object.black)){
@@ -194,6 +235,17 @@
 		return true;
 	}
 
+	function winnerFilter(winner, white, black, result){
+		if(!winner){
+			return true;
+		}
+		if((containsFilter(white, winner) && result == "1-0") || (containsFilter(black, winner) && result == "0-1")) {
+			console.log("winner");
+			return true;
+		}
+		console.log("loser");
+		return false;
+	}
 
 	function containsFilter(s1,s2){
 		if(s2==undefined || s1==undefined || s1.indexOf(s2) > -1){
@@ -243,17 +295,6 @@
 	}
 
 
-	function drawKey(key_parent){
-		var key = document.querySelector(key_parent);
-		key_html = "ECO group ";
-		for(var group in utils.ECOcolours){
-			var c = utils.ECOcolours[group];
-			var hex = utils.RGB2Hex (c.r,c.g,c.b);
-			key_html += "<div class='key_item' style='background-color:" + hex + "'>" + group + "</div>"
-		}
-		key.innerHTML = key_html;
-	}
-
 	</script>
 	<style type="text/css">
 		.label{
@@ -274,12 +315,22 @@
 </head>
 <body onLoad="go()">
 <div class="info_panel" id="info">
-	<div id="key"></div>
-	<div id="nav"></div>
 	<div id="filter_controls">
-		<a href="#" id="filter-Anand-White">Anand white</a>, <a href="#" id="filter-Kramik-White">Kramnik white</a> [<a href="#" id="clear-colour">clear</a>]
-		<br><a href="#" id="filter-White-win">White win</a>, <a href="#" id="filter-Black-win">Black win</a>, <a href="#" id="filter-draw">draw</a> [<a href="#" id="clear-winner">clear</a>]</div>
-	<div id="info_content"><p>A tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</p><p>The tree also contains information about the 150+ games played between Anand and Kramnik over their craeers.</p></div>
+		Filters:<br>
+		<a href="#" id="filter-Anand-Win">Anand win</a>, 
+		<a href="#" id="filter-Kramnik-Win">Kramnik win</a> 
+		<p>
+		<a href="#" id="filter-Anand-White">Anand white</a>, 
+		<a href="#" id="filter-Kramnik-White">Kramnik white</a> 
+		<p>
+		<a href="#" id="filter-White-win">White win</a>, 
+		<a href="#" id="filter-Black-win">Black win</a>, 
+		<a href="#" id="filter-draw">draw</a> 
+		<p>
+		<a href="#" id="filter-clear">clear</a></div>
+	<div id="filter_result"></div>
+	<div id="nav"></div>
+	<div id="info_content">A tree diagram which allows exploration and filtering of the 150+ games played between Anand and Kramnik over their careers.</div>
 </div>
 <div class='tooltip'>
 	tooltip
