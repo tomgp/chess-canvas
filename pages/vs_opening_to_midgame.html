@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
 	<script type="text/javascript" src="/js/utils.js"></script>
 
-	<script type="text/javascript" src="/generated_data/d3_openings_tree_extended.live.json"></script> 
+	<script type="text/javascript" src="/generated_data/d3_move_tree.live.json"></script> 
 	<!--//var openings_tree = -->
 
 	<script type="text/javascript">
@@ -33,6 +33,8 @@
 */
 	var current_filter_result = [];		//the results of the current filter
 	var current_filter_object = {result:"1-0"};
+
+
 	var filter_options = {
 		white:["All", "Kramnik", "Anand"],
 		black:["All", "Kramnik", "Anand"], 
@@ -68,7 +70,7 @@
 		var turn_scale = 0.9;
 		var vis = d3.select("#d3_viz").append("svg:svg")
 			.attr("width", 2000)
-			.attr("height", 1000)
+			.attr("height", 2000)
 			.append("svg:g")
 			.attr("transform", "translate(1000, 1000)");;
 
@@ -89,13 +91,16 @@
 				.attr("class", "link")
 				.attr("stroke-width", function(d){
 						//TODO look up the node weight and assign a thickness accordingly  ;
-						var thickness = Math.log(openings_tree.lookup[d.target.name].weight);
-						return thickness;
+//						var thickness = Math.log(openings_tree.lookup[d.target.name].weight);
+						return 1; //Math.max(1, Math.log(d.target.games.length));
 					})
 				.attr("stroke", function(d){
-						return utils.getECOColour(openings_tree.lookup[d.target.name].opening_groups);
+						if(d.source.games.length > 1){
+							return '#FFF';
+						}
+						return '#666';//utils.getECOColour(openings_tree.lookup[d.target.name].opening_groups);
 					})
-				.attr("stroke-opacity", 0.8)
+				.attr("stroke-opacity", 1)
 				.attr("node_name", function(d){
 					return d.target.name;
 				})
@@ -147,40 +152,44 @@
 
 
 	function filter(){
+		var off_colour = "#f00";
+		var on_colour = "#FFF";
 		filter_object = current_filter_object;
 		current_filter_result = [];
+		var acc=0;
 		d3.selectAll("path.link")
-			.classed("branch_highlight", function(d){
-				var game_list = openings_tree.lookup[d.target.name].games;
+			.attr("stroke", function(d){
+				var game_list = d.source.games;
 				if(!game_list){
-					return false;
+					return off_colour;
 				}
-				for(var i=0;i<game_list.length;i++){
-					var game = openings_tree.games[game_list[i].game_id];
-					if(current_filter_result[game_list[i].game_id]==undefined){
-						current_filter_result[game_list[i].game_id] = gameFilter(game, filter_object);
+				for(var i=0; i<game_list.length; i++){
+					var game = openings_tree.games[game_list[i]];
+					if(current_filter_result[ game_list[i] ]==undefined){
+						current_filter_result[ game_list[i] ] = gameFilter(game, filter_object);
+						acc++;
+						console.log(acc)
 					}
 					if(current_filter_result[game_list[i].game_id]){
-						return true;	//if any of the games meet the filter critera return true 
+						return on_colour;	//if any of the games meet the filter critera return true 
 					}
 				}
-				return false;
+				return off_colour;
 			});
 	}
 
 	function gameFilter(game, filter_object){
+		console.log(game.meta_data.Result);
 		if(!filter_object){
 			return true
 		}
-		if(!containsFilter(game.players.white.name, filter_object.white)){
+		if(!containsFilter(game.meta_data.White, filter_object.white)){
 			return false;}
-		if(!containsFilter(game.players.black.name, filter_object.black)){
+		if(!containsFilter(game.meta_data.Black, filter_object.black)){
 			return false;}
-		if(!containsFilter(filter_object.years, parseInt(game.year))){
+		if(!minFilter(filter_object.min_elo, [game.meta_data.WhiteElo, game.meta_data.BlackElo])){
 			return false;}
-		if(!minFilter(filter_object.min_elo, [game.players.white.elo, game.players.black.elo])){
-			return false;}
-		if(!containsFilter(game.result, filter_object.result)){
+		if(!containsFilter(game.meta_data.Result, filter_object.result)){
 			return false;}
 		return true;
 	}
@@ -267,7 +276,9 @@
 <div class="info_panel" id="info">
 	<div id="key"></div>
 	<div id="nav"></div>
-	<div id="filter_controls"></div>
+	<div id="filter_controls">
+		<a href="#" id="filter-Anand-White">Anand white</a>, <a href="#" id="filter-Kramik-White">Kramnik white</a> [<a href="#" id="clear-colour">clear</a>]
+		<br><a href="#" id="filter-White-win">White win</a>, <a href="#" id="filter-Black-win">Black win</a>, <a href="#" id="filter-draw">draw</a> [<a href="#" id="clear-winner">clear</a>]</div>
 	<div id="info_content"><p>A tree diagram showing the ~2500 recognised openings and how they're related (scroll down and right to get to the root node if you can't see it)</p><p>The tree also contains information about the 150+ games played between Anand and Kramnik over their craeers.</p></div>
 </div>
 <div class='tooltip'>

@@ -21,13 +21,9 @@ var chess_utils = require('chess_utils');
 
 var start_time = new Date().valueOf()/1000;
 
-var openings_spreadsheet = '../pgn/chess_openings_adjusted.csv';
-var openings_text = fs.readFileSync(openings_spreadsheet,'utf8');
-var openings_list = d3.csv.parse(openings_text);
-
-util.puts("starting v2 (t:"+start_time+")");
+var game_list = chess_utils.load_PGN('../pgn/Anand_Kramnik.pgn');
 //generate the tree
-var tree_data = JSON.stringify( chess_utils.build_move_tree(openings_list) );
+var tree_data = JSON.stringify( chess_utils.build_move_tree(game_list) );
 //write out the move tree
 var out_file = fs.openSync('../generated_data/d3_move_tree.json', 'w');
 	fs.writeSync(out_file, tree_data);
