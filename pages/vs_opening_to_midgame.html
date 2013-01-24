@@ -36,6 +36,7 @@
 	var current_filter_result = [];		//the results of the current filter
 	var current_filter_object = {};
 	var players = ["Anand","Kramnik"];
+	var selected_node = "";
 //end of global stuff
 
 	function go(){
@@ -149,14 +150,11 @@
 
 	function setInfoPanel(node){
 		document.getElementById('nav').innerHTML = buildCrumbTrail(node);
-		unHighlightPath(last_node);
-		last_node = node;
-		if(openings_tree.lookup[node]){
-			var c = new Chess()
-			c.load_pgn(node.split("_").join(" "))
-			document.getElementById('info_content').innerHTML = '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p> This move ends '+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
-			highlightPath(node);
-		}
+		last_node = node;		
+		var c = new Chess()
+		c.load_pgn(node.split("_").join(" "))
+		document.getElementById('info_content').innerHTML = '<pre>' + c.ascii() + '</pre><p> ECO group(s): ' + openings_tree.lookup[node].opening_groups + '</p><p> This move ends '+openings_tree.lookup[node].opening_ending+'</p>' + formatGameList(openings_tree.lookup[node].games, node);
+		
 	}
 
 	function buildCrumbTrail(node){
@@ -172,19 +170,11 @@
 		return html_string;
 	}
 
-	function highlightPath(node){
-		d3.selectAll('path[node_name="'+node+'"]').classed("line_highlight", true);
-	}
-
-	function unHighlightPath(node){
-		d3.selectAll('path[node_name="'+node+'"]').classed("line_highlight", false);	
-	}
-
 
 
 	function filter(){
 		var off_colour = "#400";
-		var on_colour = "#FFF";
+		var on_colour = "#F00";
 		filter_object = current_filter_object;
 		current_filter_result = [];
 		d3.selectAll("path.link")

@@ -26,3 +26,9 @@ node/node_modules/crypto/package.json
 node/node_modules/crypto/sha1.js
 
 node/node_modules/crypto/test/test-crypto.js
+
+pgn/imortal_game.pgn
+
+img/rotated_move_tree.png
+
+generated_data/position_strength.csv
