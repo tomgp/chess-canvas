@@ -126,3 +126,6 @@
 		font-weight: bold;
 		margin-left: 10px;
 	}
+	#highlight_path{
+		stroke:#FFF;
+	}

@@ -22,8 +22,17 @@
 
 	function draw(rows){
 
+		//add board positions to the rows
+		var chess = new Chess();
+		for (var r = 0; r<rows.length; r++){
+			if(rows[r].move != "0"){
+				chess.move(rows[r].move);
+			}
+			rows[r].board = chess.ascii();
+		}
+
 		var margin = 20;
-		var w = 800;
+		var w = 600;
 		var h = 400;
 		//scales
 		var absolute_max_ps = Math.max(
@@ -35,11 +44,11 @@
 
 		var x = d3.scale.linear()
 			.domain([0, rows.length])
-			.range([0, w]);
+			.range([0, w-margin]);
 
 		var y = d3.scale.linear()
 			.domain(ps_domain)
-			.range([0+margin, h-margin]);
+			.range([0 + margin, h - margin]);
 		
 		//straight line interpolation
 		var line_function = d3.svg.line()
@@ -50,13 +59,13 @@
 		//add the root
 		var vis = d3.select("#d3_viz")
 		    .append("svg:svg")
-			.attr("class", "analysis_chart")
-			.attr("id", "analysis")
+			.attr("class", "d3_chart")
+			.attr("id", "move_analysis")
 		    .attr("width", w)
 		    .attr("height", h);
 
 		//draw the move axis
-		vis.selectAll("#analysis")
+		vis.selectAll("#move_analysis")
 			.data(rows)
 				.enter()
 				.append("rect")
@@ -64,10 +73,31 @@
 					.attr("x", function(d, i) { return x(i); })
 					.attr("width", function() { return x(1); })
 					.attr("height", h)
-					.attr("fill", getMoveColour);
+					.attr("id", getRectID)
+					.attr("fill", getMoveColour)
+						.on("mouseover", function(d,i){
+								d3.select(".tooltip").style("visibility","visible");
+								d3.selectAll('#move_' + i)
+									.attr("stroke", '#FFF')
+									.attr("stroke-width",2);
+								d3.selectAll('#rect_' + i)
+									.attr("fill", function(){return getMoveHighlightColour({},i)});
+							})
+						.on("mousemove", function(d,i){
+							d3.select(".tooltip").style("top", (event.pageY-10)+"px").style("left",(event.pageX+10)+"px")
+									.html(getTipText(d,i,rows));
+						})
+						.on("mouseout", function(d,i){
+							d3.select(".tooltip").style("visibility", "hidden");
+							d3.selectAll('#move_' + i)
+								.attr("stroke", getHoudiniColour)
+								.attr("stroke-width",1);
+							d3.selectAll('#rect_' + i)
+								.attr("fill", function(){return getMoveColour({},i)});
+						});
 
 		//draw the pawn strength axis
-		vis.selectAll("#analysis")
+		vis.selectAll("#move_analysis")
 			.data(d3.range(-10,11,5))
 				.enter()
 				.append('line')
@@ -76,10 +106,19 @@
 				    .attr("x2", x(rows.length))
 				    .attr("y2", function(d){return y(d)})
 				    .attr("stroke", "#555555");
+		
+		vis.selectAll("#move_analysis")
+			.data(d3.range(-10,11,5))
+				.enter()
+				.append('text')
+					.text(function(d){console.log(d); return d})
+					.attr('x', x(rows.length) + 5)
+                    .attr('y', function(d){return y(d) + 5})
+                    .attr("fill", "#999");
 
 
 		//draw the line segments
-		vis.selectAll("#analysis")
+		vis.selectAll("#move_analysis")
 			.data(rows)
 				.enter()
 				.append("path")
@@ -101,6 +140,28 @@
 
 	}
 
+	function getTipText(d,i){		
+		return getPlayer(i) +" move: " + d.move + "<br>Pawn strength " + d.pawn_strength + "<br>Houdini thought this was " + houdiniRankToWords(d.houdini_rank)
+		+ "<pre>"+d.board+"</pre>";
+	}
+
+	function houdiniRankToWords(i){
+		var descriptions = [
+			'the best choice',
+			'not a bad choice',
+			'alright',
+			'a bad choice'
+		]
+		return descriptions[i];
+	}
+
+	function getPlayer(i){
+		if(i%2 == 0){
+			return "Black"
+		}
+		return "White"
+	}
+
 	function getMoveColour(d,i){
 		if(i%2 == 0){
 			return '#000000'
@@ -108,8 +169,19 @@
 		return '#222';
 	}
 
+	function getMoveHighlightColour(d,i){
+		if(i%2 == 0){
+			return '#777'
+		}
+		return '#bbb';
+	}
+
 	function getMoveID(d,i){
 		return "move_" + i;
+	}
+
+	function getRectID(d,i){
+		return "rect_" + i;
 	}
 
 	function getPawnStrength(i){
@@ -148,7 +220,8 @@
 </head>
 <body onLoad="go()">
 <div class="info_panel" id="info">
-	Simple visalisation of pawn strength in a game between Wang(w) and Anand(b).
+	Simple visalisation of pawn strength in a game between Wang (white) and Anand (black) - Tata Steel Chess Tournament round 13, 27th Jan.
+	<p>The chart's line segments are coloured based on whether the houdini predicted the move would be good or not. 
 </div>
 <div class='tooltip'>
 	tooltip
