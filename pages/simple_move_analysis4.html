@@ -52,13 +52,13 @@
 
 		var rank_domain = [-4, +4];
 
-		var distance = d3.scale.linear()
+		var move_scale = d3.scale.linear()
 			.domain([0, rows.length/2])
 			.range([0, 350])
 
-		var angle = d3.scale.linear()
+		var houdini_scale = d3.scale.linear()
 			.domain(rank_domain)
-			.range([-Math.PI/2 , Math.PI/2]);
+			.range([ -5 , 5 ]);
 		
 
 
@@ -75,13 +75,13 @@
 		var last_y = 0;
 		var move_length = 9;
 		var line_function = d3.svg.line()
-			.x(function(d,i){
-				last_x = last_x + move_length * Math.cos( angle(d) );
+			.x(function(d){
+				last_x = last_x + houdini_scale(d);
 				console.log("x: " + last_x);
 				return last_x;
 			})
 			.y(function(d,i){
-				last_y = last_y + move_length * Math.sin( angle(d) );
+				last_y = move_scale(i);
 				console.log("y: " + last_y);
 				return last_y;
 			});
