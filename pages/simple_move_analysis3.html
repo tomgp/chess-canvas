@@ -23,19 +23,22 @@
 	function draw(rows){
 		//add board positions to the rows
 		var chess = new Chess();
+		var black_houdini_ranks = [];
+		var white_houdini_ranks = [];
 		for (var r = 0; r<rows.length; r++){
 			if(r != 0){
 				chess.move(rows[r].move);
 				rows[r].last_pawn_strength = rows[r-1].pawn_strength;
 			}
-			rows[r].board = chess.ascii();
-			if(rows[r].turn%1 != 0){
-				rows[r].houdini_rank = -rows[r].houdini_rank;
+			if(rows[r].turn != 0 && rows[r].turn%1==0){
+				white_houdini_ranks.push(rows[r].houdini_rank);
+			}else{
+				black_houdini_ranks.push(- rows[r].houdini_rank); //we invert so it veers right
 			}
+			rows[r].board = chess.ascii();
 		}
 
-		var black_rows = [];
-		var white_rows = [];
+		
 
 		var margin = 20;
 		var w = 700;
@@ -50,12 +53,12 @@
 		var rank_domain = [-4, +4];
 
 		var distance = d3.scale.linear()
-			.domain([0, rows.length])
+			.domain([0, rows.length/2])
 			.range([0, 350])
 
 		var angle = d3.scale.linear()
 			.domain(rank_domain)
-			.range([-Math.PI/4 , Math.PI/4]);
+			.range([-Math.PI/2 , Math.PI/2]);
 		
 
 
@@ -68,53 +71,46 @@
 		    .attr("height", h);
 
 		//draw the data lines
-		vis.selectAll("#move_analysis")
-			.data(rows).enter()
-			.append("svg:line")
-				.attr("x1",function(d,i){
-					return getLastPos(i,rows,"x");
-				})
-				.attr("y1",function(d,i){
-					return getLastPos(i,rows,"y");
-				})
-				.attr("x2",function(d,i){
-					return getNewPos(i,rows,"x");
-				})
-				.attr("y2",function(d,i){
-					return getNewPos(i,rows,"y");
-				})
-				.attr("fill","none")
-				.attr("stroke", getTurnColour)
-				.attr("transform", function(d,i){ return "translate(300,400), rotate(-90)" });
+		var last_x = 0;
+		var last_y = 0;
+		var move_length = 9;
+		var line_function = d3.svg.line()
+			.x(function(d,i){
+				last_x = last_x + move_length * Math.cos( angle(d) );
+				console.log("x: " + last_x);
+				return last_x;
+			})
+			.y(function(d,i){
+				last_y = last_y + move_length * Math.sin( angle(d) );
+				console.log("y: " + last_y);
+				return last_y;
+			});
 
-	function getLastPos(i,rows,axis){
-		console.log("last " + i);
-		var last_index = i-2;
-		if(last_index < 1){
-			if(last_index == 0){
-				rows[last_index][axis] = 0;		
-			}
-			return 0;
-		}
-		if(!rows[last_index]){
-			return 0;
-		}
-		return rows[last_index][axis];
-	}
+//central axis
+		vis.append("svg:line")
+			.attr("x1",300)
+			.attr("y1",400)
+			.attr("x2",300)
+			.attr("y2",0)
+			.attr("stroke", '#666');
 
-	function getNewPos(i, rows, axis){
-		console.log("new  " + i);
-		var turn_length = 10;
-		var last_value = getLastPos(i, rows, axis);
-		var difference;
-		if(axis == "x"){
-			difference = turn_length * Math.sin( angle(rows[i].houdini_rank) );
-		}else{
-			difference = turn_length * Math.cos( angle(rows[i].houdini_rank) );
-		}
-		rows[i][axis] = last_value + difference;
-		return rows[i][axis];
-	}
+//data path
+		vis.append("svg:path")
+			.attr("d", line_function(black_houdini_ranks))
+			.attr("transform", function(d,i){ return "translate(300,400), rotate(-90)" })
+			.attr("fill","none")
+			.attr("stroke", '#000000');
+console.log("white")
+
+		last_x = 0;
+		last_y = 0;
+		vis.append("svg:path")
+			.attr("d", line_function(white_houdini_ranks))
+			.attr("transform", function(d,i){ return "translate(300,400), rotate(-90)" })
+			.attr("fill","none")
+			.attr("stroke", '#FFFFFF');
+
+
 	}
 
 	function getTurnColour(d,i){
@@ -205,7 +201,9 @@
 			//stroke: #000;
 			//stroke-width: 1px;
 		}
-
+		#d3_viz{
+			top:150px;
+		}
 	</style>
 </head>
 <body onLoad="go()">
