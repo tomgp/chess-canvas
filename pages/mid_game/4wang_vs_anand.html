@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Move analysis</title>
+	<link rel="stylesheet" type="text/css" href="/css/chess_style.css">
+	<script type="text/javascript" src="/js/vendor/signals.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/chess.js"></script>
+	<script type="text/javascript" src="/js/vendor/easeljs-0.5.0.min.js"></script>
+	<script type="text/javascript" src="/js/vendor/d3.v2.min.js"></script>
+	<script type="text/javascript" src="/js/ChessOpenings.js"></script>
+	<script type="text/javascript" src="/js/PGNSplitter.js"></script>
+	<script type="text/javascript" src="/js/GameMetaData.js"></script>
+	<script type="text/javascript" src="/js/ChessPlayback.js"></script>
+	<script type="text/javascript" src="/js/utils.js"></script>
+
+	<script type="text/javascript">
+
+
+	function go(){	
+		d3.csv('/generated_data/move_analysis_wang_vs_anand.csv', draw); 
+//		d3.csv('/generated_data/move_analysis_van_wely_vs_karjakin.csv', draw); 
+		
+	}
+
+	function draw(rows){
+		//add board positions to the rows
+		var chess = new Chess();
+		var black_houdini_ranks = [];
+		var white_houdini_ranks = [];
+		for (var r = 0; r<rows.length; r++){
+			if(r != 0){
+				chess.move(rows[r].move);
+				rows[r].last_pawn_strength = rows[r-1].pawn_strength;
+			}
+			if(rows[r].turn != 0 && rows[r].turn%1==0){
+				white_houdini_ranks.push( - rows[r].houdini_rank);
+			}else{
+				black_houdini_ranks.push( rows[r].houdini_rank); //we invert so it veers right
+			}
+			rows[r].board = chess.ascii();
+		}
+
+		
+
+		var margin = 20;
+		var w = 700;
+		var h = 600;
+
+		//scales
+		var absolute_max_ps = Math.max(
+			Math.abs(d3.min(rows, getPawnStrength)),
+			Math.abs(d3.max(rows, getPawnStrength))
+		)
+
+		var move_scale = d3.scale.linear()
+			.domain([0, rows.length/2])
+			.range([0, 350])
+
+		var houdini_scale = d3.scale.linear()
+			.domain([-4, +4])
+			.range([ -10 , 10 ]);
+		
+
+
+		//add the root
+		var vis = d3.select("#d3_viz")
+		    .append("svg:svg")
+			.attr("class", "d3_chart")
+			.attr("id", "move_analysis")
+		    .attr("width", w)
+		    .attr("height", h);
+
+		//draw the data lines
+		var last_x = 0;
+		var move_length = 9;
+		var line_function = d3.svg.line()
+			.x(function(d,i){
+				last_x = last_x + houdini_scale(d);
+				console.log("x: " + last_x);
+				if(!xpositions[i]){
+					xpositions[i] = [];	
+				}
+				xpositions[i].push(last_x);
+				return last_x;
+			})
+			.y(function(d,i){
+				last_y = move_scale(i);
+				console.log("y: " + last_y);
+				return last_y;
+			});
+
+//central axis
+		vis.append("svg:line")
+			.attr("x1",w/2)
+			.attr("y1",400)
+			.attr("x2",w/2)
+			.attr("y2",0)
+			.attr("stroke", '#666');
+//move lines
+		vis.selectAll('#move_analysis')
+			.data(d3.range(0, rows.length/2 + 1, 5))
+			.enter()
+			.append("svg:line")
+				.attr("x1",0)
+				.attr("y1",function(d){ return 400-move_scale(d) })
+				.attr("x2",w)
+				.attr("y2",function(d){ return 400-move_scale(d) })
+				.attr("stroke",'#666');
+
+//data paths
+		var xpositions = []
+		vis.append("svg:path")
+			.attr("d", line_function(black_houdini_ranks))
+			.attr("transform", function(d,i){ return "translate("+w/2+",400), rotate(180)" })
+			.attr("fill","none")
+			.attr("stroke", '#000000');
+
+		last_x = 0;
+		vis.append("svg:path")
+			.attr("d", line_function(white_houdini_ranks))
+			.attr("transform", function(d,i){ return "translate("+w/2+",400), rotate(180)" })
+			.attr("fill","none")
+			.attr("stroke", '#FFFFFF');
+
+		last_x = 0;
+
+console.log(xpositions)
+
+
+	}
+
+	function arrayMean(a){
+		if(a.length > 1){
+			for(var i = 0; i < a.length; i++){
+
+			}
+		}
+	}
+
+	function getTurnColour(d,i){
+		return "#ffffff";
+	}
+
+	
+
+	function getTipText(d,i,rows){		
+		if (!d.move){
+			d=rows[i]
+		}
+		return "["+Math.floor(d.turn)+"] "+getPlayer(i) +" move: " + d.move + "<br>Pawn strength " + d.pawn_strength + "<br>Houdini thought this " + houdiniRankToWords(d.houdini_rank)
+		+ "<pre>"+d.board+"</pre>";
+	}
+
+	function houdiniRankToWords(i){
+		var descriptions = [
+			'was the best choice',
+			'wasn&apos;t a bad choice',
+			'was alright',
+			'was a bad choice'
+		]
+		return descriptions[i];
+	}
+
+	function getPlayer(i){
+		if(i%2 == 0){
+			return "Black"
+		}
+		return "White"
+	}
+
+	function getMoveColour(d,i){
+		if(i%2 == 0){
+			return '#000000'
+		}
+		return '#222';
+	}
+
+	function getMoveHighlightColour(d,i){
+		if(i%2 == 0){
+			return '#777'
+		}
+		return '#bbb';
+	}
+
+	function getMoveID(d,i){
+		return "move_" + i;
+	}
+
+	function getRectID(d,i){
+		return "rect_" + i;
+	}
+
+	function getPawnStrength(i){
+		return i["pawn_strength"];
+	}
+
+	function getHoudiniRank(i){
+		return i["houdini_rank"];	
+	}
+
+	function getHoudiniColour(i){
+		var colour_rank = [
+			'#00FF00',
+			'#AAFF00',
+			'#FFAA00',
+			'#FF0000'
+		]
+		return colour_rank[i.houdini_rank];
+	}
+
+
+
+	</script>
+	<style type="text/css">
+		.label{
+			border-bottom: solid;
+			border-width: 1px;
+			border-color: #fff;
+			position: absolute;
+			color: #fff;
+		}
+
+		.link {
+			fill: none;
+			//stroke: #000;
+			//stroke-width: 1px;
+		}
+		#d3_viz{
+			top:150px;
+		}
+	</style>
+</head>
+<body onLoad="go()">
+<div class="info_panel" id="info">
+	<b>How well are they playing?</b> A visalisation of "houdini rank" for each players moves i.e. is the move taken one of those which Houdini reccomended after a given amount of processing time. Wang (w) vs Anand (b) - Tata Steel... round 13, 27th Jan. 
+</div>
+<div class='tooltip'>
+	tooltip
+</div>
+<div class="visualisation" id="d3_viz">
+</div>
+
+
+</body>
+</html>

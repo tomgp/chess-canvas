@@ -17,7 +17,9 @@
 
 
 	function go(){	
-		d3.csv('/generated_data/move_analysis_wang_vs_anand.csv', draw); 
+//		d3.csv('/generated_data/move_analysis_wang_vs_anand.csv', draw); 
+		d3.csv('/generated_data/move_analysis_van_wely_vs_karjakin.csv', draw); 
+		
 	}
 
 	function draw(rows){
@@ -49,7 +51,7 @@
 			Math.abs(d3.min(rows, getPawnStrength)),
 			Math.abs(d3.max(rows, getPawnStrength))
 		)
-		
+
 		var move_scale = d3.scale.linear()
 			.domain([0, rows.length/2])
 			.range([0, 350])
@@ -85,9 +87,9 @@
 
 //central axis
 		vis.append("svg:line")
-			.attr("x1",300)
+			.attr("x1",w/2)
 			.attr("y1",400)
-			.attr("x2",300)
+			.attr("x2",w/2)
 			.attr("y2",0)
 			.attr("stroke", '#666');
 //move lines
@@ -104,7 +106,7 @@
 //data path
 		vis.append("svg:path")
 			.attr("d", line_function(black_houdini_ranks))
-			.attr("transform", function(d,i){ return "translate(300,400), rotate(180)" })
+			.attr("transform", function(d,i){ return "translate("+w/2+",400), rotate(180)" })
 			.attr("fill","none")
 			.attr("stroke", '#000000');
 console.log("white")
@@ -112,7 +114,7 @@ console.log("white")
 		last_x = 0;
 		vis.append("svg:path")
 			.attr("d", line_function(white_houdini_ranks))
-			.attr("transform", function(d,i){ return "translate(300,400), rotate(180)" })
+			.attr("transform", function(d,i){ return "translate("+w/2+",400), rotate(180)" })
 			.attr("fill","none")
 			.attr("stroke", '#FFFFFF');
 
@@ -214,7 +216,7 @@ console.log("white")
 </head>
 <body onLoad="go()">
 <div class="info_panel" id="info">
-	A visalisation of "houdini rank" for each players moves i.e. is the move taken one of those which Houdini reccomended after a given amount of processing time. Wang (w) vs Anand (b) - Tata Steel... round 13, 27th Jan. 
+	<b>How well are they playing?</b> A visalisation of "houdini rank" for each players moves i.e. is the move taken one of those which Houdini reccomended after a given amount of processing time. Karjakin (w) vs Van Wely (b) - Tata Steel... round 13, 27th Jan. 
 </div>
 <div class='tooltip'>
 	tooltip
