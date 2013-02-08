@@ -49,16 +49,14 @@
 			Math.abs(d3.min(rows, getPawnStrength)),
 			Math.abs(d3.max(rows, getPawnStrength))
 		)
-
-		var rank_domain = [-4, +4];
-
+		
 		var move_scale = d3.scale.linear()
 			.domain([0, rows.length/2])
 			.range([0, 350])
 
 		var houdini_scale = d3.scale.linear()
-			.domain(rank_domain)
-			.range([ -5 , 5 ]);
+			.domain([-4, +4])
+			.range([ -10 , 10 ]);
 		
 
 
@@ -72,7 +70,6 @@
 
 		//draw the data lines
 		var last_x = 0;
-		var last_y = 0;
 		var move_length = 9;
 		var line_function = d3.svg.line()
 			.x(function(d){
@@ -93,20 +90,29 @@
 			.attr("x2",300)
 			.attr("y2",0)
 			.attr("stroke", '#666');
+//move lines
+		vis.selectAll('#move_analysis')
+			.data(d3.range(0, rows.length/2 + 1, 5))
+			.enter()
+			.append("svg:line")
+				.attr("x1",0)
+				.attr("y1",function(d){ return 400-move_scale(d) })
+				.attr("x2",w)
+				.attr("y2",function(d){ return 400-move_scale(d) })
+				.attr("stroke",'#666');
 
 //data path
 		vis.append("svg:path")
 			.attr("d", line_function(black_houdini_ranks))
-			.attr("transform", function(d,i){ return "translate(300,400), rotate(-90)" })
+			.attr("transform", function(d,i){ return "translate(300,400), rotate(180)" })
 			.attr("fill","none")
 			.attr("stroke", '#000000');
 console.log("white")
 
 		last_x = 0;
-		last_y = 0;
 		vis.append("svg:path")
 			.attr("d", line_function(white_houdini_ranks))
-			.attr("transform", function(d,i){ return "translate(300,400), rotate(-90)" })
+			.attr("transform", function(d,i){ return "translate(300,400), rotate(180)" })
 			.attr("fill","none")
 			.attr("stroke", '#FFFFFF');
 
