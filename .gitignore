@@ -36,3 +36,5 @@ generated_data/position_strength.csv
 *.ai
 
 img/40moves2500games.png
+
+js/ascii_to_canvas.js
