@@ -74,15 +74,25 @@
 		var last_x = 0;
 		var move_length = 9;
 		var line_function = d3.svg.line()
-			.x(function(d){
+			.x(function(d,i){
 				last_x = last_x + houdini_scale(d);
 				console.log("x: " + last_x);
+				if(!xpositions[i]){
+					xpositions[i] = [];	
+				}
+				xpositions[i].push(last_x);
 				return last_x;
 			})
 			.y(function(d,i){
-				last_y = move_scale(i);
-				console.log("y: " + last_y);
-				return last_y;
+				return move_scale(i);
+			});
+
+		var unscaled_line_function = d3.svg.line()
+			.x(function(d,i){
+				return d;
+			})
+			.y(function(d,i){
+				return move_scale(i);
 			});
 
 //central axis
@@ -103,13 +113,13 @@
 				.attr("y2",function(d){ return 400-move_scale(d) })
 				.attr("stroke",'#666');
 
-//data path
+//data paths
+		var xpositions = []
 		vis.append("svg:path")
 			.attr("d", line_function(black_houdini_ranks))
 			.attr("transform", function(d,i){ return "translate("+w/2+",400), rotate(180)" })
 			.attr("fill","none")
 			.attr("stroke", '#000000');
-console.log("white")
 
 		last_x = 0;
 		vis.append("svg:path")
@@ -118,7 +128,27 @@ console.log("white")
 			.attr("fill","none")
 			.attr("stroke", '#FFFFFF');
 
+		var mean_line = []
+		for(var i=0;i<xpositions.length;i++){
+			mean_line[i] = arrayMean(xpositions[i]);
+		}
 
+		vis.append("svg:path")
+			.attr("d", unscaled_line_function(mean_line))
+			.attr("transform", function(d,i){ return "translate("+w/2+",400), rotate(180)" })
+			.attr("fill","none")
+			.attr("stroke", '#666');
+
+	}
+
+	function arrayMean(a){
+		if(a.length > 1){
+			total = 0;
+			for(var i = 0; i < a.length; i++){
+				total+=a[i]
+			}
+			return total/a.length;
+		}
 	}
 
 	function getTurnColour(d,i){
